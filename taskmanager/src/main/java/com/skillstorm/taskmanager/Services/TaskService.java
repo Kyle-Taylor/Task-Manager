@@ -1,11 +1,12 @@
 package com.skillstorm.taskmanager.Services;
 
-import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.skillstorm.taskmanager.DTOs.TaskRequestDTO;
 import com.skillstorm.taskmanager.Models.Task;
 import com.skillstorm.taskmanager.Repositories.TaskRepository;
 
@@ -28,17 +29,32 @@ public class TaskService {
     }
 
     // POST METHODS
-    public Task createTask(Long assignedUserId, Long assignedTeamId, String title, String description,
-                           String status, String priority, LocalDateTime dueDate) {
+    public Task createTask(TaskRequestDTO request) {
         Task task = new Task();
-        task.setAssignedUserId(assignedUserId);
-        task.setAssignedTeamId(assignedTeamId);
-        task.setTitle(title);
-        task.setDescription(description);
-        task.setStatus(status);
-        task.setPriority(priority);
-        task.setDueDate(dueDate);
+        task.setAssignedUserId(request.getAssignedUserId());
+        task.setAssignedTeamId(request.getAssignedTeamId());
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+        task.setStatus(request.getStatus());
+        task.setPriority(request.getPriority());
+        task.setDueDate(request.getDueDate());
 
         return taskRepository.save(task);
     }
+
+    // PATCH METHODS
+    public Task updateTask(Long id, TaskRequestDTO request) {
+    Task task = taskRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+
+    if (request.getAssignedUserId() != null) {task.setAssignedUserId(request.getAssignedUserId());}
+    if (request.getAssignedTeamId() != null) {task.setAssignedTeamId(request.getAssignedTeamId());}
+    if (request.getTitle() != null) {task.setTitle(request.getTitle());}
+    if (request.getDescription() != null) {task.setDescription(request.getDescription());}
+    if (request.getStatus() != null) {task.setStatus(request.getStatus());}
+    if (request.getPriority() != null) {task.setPriority(request.getPriority());}
+    if (request.getDueDate() != null) {task.setDueDate(request.getDueDate());}
+
+    return taskRepository.save(task);
+}
 }

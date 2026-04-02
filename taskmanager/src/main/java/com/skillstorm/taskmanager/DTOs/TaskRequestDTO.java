@@ -2,14 +2,17 @@ package com.skillstorm.taskmanager.DTOs;
 
 import java.time.LocalDateTime;
 
+import com.skillstorm.taskmanager.Enums.Priority;
+import com.skillstorm.taskmanager.Enums.Status;
+
 public class TaskRequestDTO {
 
     private Long assignedUserId;
     private Long assignedTeamId;
     private String title;
     private String description;
-    private String status;
-    private String priority;
+    private Status status;
+    private Priority priority;
     private LocalDateTime dueDate;
 
     public TaskRequestDTO() {
@@ -47,19 +50,19 @@ public class TaskRequestDTO {
         this.description = description;
     }
 
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
-    public String getPriority() {
+    public Priority getPriority() {
         return priority;
     }
 
-    public void setPriority(String priority) {
+    public void setPriority(Priority priority) {
         this.priority = priority;
     }
 

@@ -5,8 +5,13 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.skillstorm.taskmanager.Enums.Priority;
+import com.skillstorm.taskmanager.Enums.Status;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,11 +37,13 @@ public class Task {
     @Column(name="description")
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(name="status")
-    private String status;
+    private Status status;
 
+    @Enumerated(EnumType.STRING)
     @Column(name="priority")
-    private String priority;
+    private Priority priority;
 
     @Column(name="due_date")
     private LocalDateTime dueDate;
@@ -67,11 +74,11 @@ public class Task {
     public String getDescription() {return description;}
     public void setDescription(String description) {this.description = description;}
 
-    public String getStatus() {return status;}
-    public void setStatus(String status) {this.status = status;}
+    public Status getStatus() {return status;}
+    public void setStatus(Status status) {this.status = status;}
 
-    public String getPriority() {return priority;}
-    public void setPriority(String priority) {this.priority = priority;}
+    public Priority getPriority() {return priority;}
+    public void setPriority(Priority priority) {this.priority = priority;}
 
     public LocalDateTime getDueDate() {return dueDate;}
     public void setDueDate(LocalDateTime dueDate) {this.dueDate = dueDate;}
