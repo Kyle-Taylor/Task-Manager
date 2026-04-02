@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true          # Auto-discovers services from Eureka
+          lower-case-service-id: true  # Allows lowercase route paths
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
