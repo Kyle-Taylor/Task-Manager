@@ -4,10 +4,11 @@
 
 - Eureka: `http://localhost:8761`
 - Gateway: `http://localhost:8080`
-- Profile: `http://localhost:8082`
-- Task: `http://localhost:8083`
+- Business: `http://localhost:8082`
 
-## Profile Service
+## Business Service
+
+`task_manager_business_service` now owns the business-domain tables together: `users`, `teams`, `tasks`, and `task_comments`.
 
 ### Users
 
@@ -22,10 +23,7 @@ Example:
 {
   "teamId": 1,
   "username": "alice",
-  "email": "alice@example.com",
-  "passwordHash": "testhash",
-  "role": "ADMIN",
-  "enabled": true
+  "email": "alice@example.com"
 }
 ```
 
@@ -46,8 +44,6 @@ Example:
 }
 ```
 
-## Task Service
-
 ### Tasks
 
 - `GET /api/tasks` - get all tasks
@@ -62,7 +58,7 @@ Example:
   "assignedUserId": 1,
   "assignedTeamId": 1,
   "title": "Finish API integration",
-  "description": "Connect task-service to profile-service validation",
+  "description": "Keep task validation inside the business service",
   "status": "OPEN",
   "priority": "HIGH",
   "dueDate": "2026-04-10T17:00:00"
@@ -86,7 +82,7 @@ Example:
   Used for `DELETE /api/comments/{commentId}`.
 
 - `400 Bad Request` - request data is invalid
-  Use when the body is malformed, required values are missing, enums are invalid, or `task-service` receives a bad `assignedUserId` or `assignedTeamId`.
+  Use when the body is malformed, required values are missing, enums are invalid, or a task references a missing user or team.
 
 - `404 Not Found` - requested resource does not exist
   Use when a user, team, task, or comment ID is not found.
