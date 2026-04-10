@@ -7,6 +7,7 @@ import com.skillstorm.auth_service.DTOs.RegisterRequest;
 import com.skillstorm.auth_service.Models.UserCredentials;
 import com.skillstorm.auth_service.Repositories.UserCredentialsRepository;
 import com.skillstorm.auth_service.DTOs.LoginRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import com.skillstorm.auth_service.DTOs.TokenValidationResponse;
 
 @Service
@@ -59,8 +60,8 @@ public class AuthService {
         }
         String token = jwtService.generateToken(
             user.getEmail(),
-            user.getProfileUserId(),
-            user.getRole()
+            user.getRole(),
+            user.getProfileUserId()
         );
 
         return new LoginResponse(
@@ -68,7 +69,7 @@ public class AuthService {
             user.getProfileUserId(), 
             user.getEmail(), 
             user.getRole(),
-            jwtService.extractExpiration(token)
+            jwtService.extractExpiration(token).getTime()
         );
     }
 

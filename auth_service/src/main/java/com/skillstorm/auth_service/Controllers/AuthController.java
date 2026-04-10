@@ -10,13 +10,9 @@ import com.skillstorm.auth_service.DTOs.LoginRequest;
 import com.skillstorm.auth_service.DTOs.LoginResponse;
 import com.skillstorm.auth_service.DTOs.RegisterRequest;
 import com.skillstorm.auth_service.DTOs.TokenValidationResponse;
-
+import java.util.Map;
 import com.skillstorm.auth_service.Sevices.AuthService;
-
-import ch.qos.logback.core.subst.Token;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 @Controller
 @RequestMapping("/auth")
