@@ -10,7 +10,7 @@ import com.skillstorm.auth_service.DTOs.LoginRequest;
 import com.skillstorm.auth_service.DTOs.LoginResponse;
 import com.skillstorm.auth_service.DTOs.RegisterRequest;
 import com.skillstorm.auth_service.DTOs.TokenValidationResponse;
-import java.util.Map;
+import com.skillstorm.auth_service.DTOs.TokenValidationRequest;
 import com.skillstorm.auth_service.Sevices.AuthService;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -56,9 +56,11 @@ public class AuthController {
         Response: 200 OK with token validation result.
     */
     @PostMapping("/validate")
-    public ResponseEntity<TokenValidationResponse> validate(@RequestBody Map<String, String> body) {
-        String token = body.get("token");
-        TokenValidationResponse response = authService.validateToken(token);
+    public ResponseEntity<TokenValidationResponse> validate(
+        @Valid
+        @RequestBody 
+        TokenValidationRequest request) {
+        TokenValidationResponse response = authService.validateToken(request.token());
         return ResponseEntity.ok(response);
     }
 
