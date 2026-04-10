@@ -69,7 +69,7 @@ public class AuthService {
             user.getProfileUserId(), 
             user.getEmail(), 
             user.getRole(),
-            jwtService.extractExpiration(token).getTime()
+            jwtService.extractExpiration(token)
         );
     }
 
