@@ -26,3 +26,4 @@ replay_pid*
 # Local environment overrides
 .env.local
 .env
+*.sql
