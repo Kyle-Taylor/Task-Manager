@@ -1,7 +1,7 @@
 package com.skillstorm.auth_service.Controllers;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import com.skillstorm.auth_service.DTOs.TokenValidationRequest;
 import com.skillstorm.auth_service.Sevices.AuthService;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@Controller
+@RestController
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
