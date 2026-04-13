@@ -55,6 +55,7 @@ export class App implements OnInit {
   protected readonly apiBaseUrl = BUSINESS_SERVICE_ORIGIN;
   protected readonly filters: QueueFilter[] = [
     'All requests',
+    'Open requests',
     'My queue',
     'Unassigned',
     'Breaching SLA',
@@ -62,6 +63,7 @@ export class App implements OnInit {
   ];
   protected readonly statuses: TaskStatus[] = ['OPEN', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
   protected readonly priorities: TaskPriority[] = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
+  protected readonly pageSizeOptions = [10, 20, 30, 50];
 
   protected tasks: Task[] = [];
   protected users: User[] = [];
@@ -80,6 +82,7 @@ export class App implements OnInit {
   protected selectedTaskId: number | null = null;
   protected assignmentUserId: number | null = null;
   protected assignmentTeamId: number | null = null;
+  protected isEditingDetails = false;
   protected detailTitle = '';
   protected detailDescription = '';
   protected detailPriority: TaskPriority = 'MEDIUM';
@@ -88,6 +91,8 @@ export class App implements OnInit {
   protected newCommentText = '';
   protected activeSortField: TaskSortField = 'updated';
   protected activeSortDirection: SortDirection = 'desc';
+  protected currentPage = 1;
+  protected pageSize = 10;
 
   protected readonly createForm: CreateTaskFormModel = {
     title: '',
@@ -140,6 +145,8 @@ export class App implements OnInit {
 
   protected get filteredTickets(): Task[] {
     switch (this.activeFilter) {
+      case 'Open requests':
+        return this.tasks.filter(task => task.status === 'OPEN' || task.status === 'IN_PROGRESS');
       case 'My queue':
         return this.tasks.filter(task => task.assignedUserId === this.currentUserId);
       case 'Unassigned':
@@ -161,6 +168,19 @@ export class App implements OnInit {
 
   protected get selectedTask(): Task | null {
     return this.tasks.find(task => task.id === this.selectedTaskId) ?? null;
+  }
+
+  protected get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredTickets.length / this.pageSize));
+  }
+
+  protected get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, index) => index + 1);
+  }
+
+  protected get currentPageTickets(): Task[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    return this.filteredTickets.slice(startIndex, startIndex + this.pageSize);
   }
 
   protected get selectedUser(): User | null {
@@ -216,6 +236,7 @@ export class App implements OnInit {
       priorities: this.priorities,
       isSaving: this.isSaving,
       isRefreshingComments: this.isRefreshingComments,
+      isEditingDetails: this.isEditingDetails,
       detailTitle: this.detailTitle,
       detailDescription: this.detailDescription,
       detailPriority: this.detailPriority,
@@ -259,6 +280,7 @@ export class App implements OnInit {
         this.users = users;
         this.teams = teams;
         this.isLoading = false;
+        this.currentPage = Math.min(this.currentPage, this.totalPages);
 
         const fallbackTaskId = preferredTaskId ?? this.selectedTaskId ?? null;
         if (fallbackTaskId && this.tasks.some(task => task.id === fallbackTaskId)) {
@@ -288,6 +310,7 @@ export class App implements OnInit {
       this.activeSortDirection = field === 'updated' || field === 'created' || field === 'due' ? 'desc' : 'asc';
     }
 
+    this.currentPage = 1;
     this.refreshTasks(this.selectedTaskId ?? undefined);
   }
 
@@ -296,6 +319,7 @@ export class App implements OnInit {
     const task = this.selectedTask;
     this.assignmentUserId = task?.assignedUserId ?? null;
     this.assignmentTeamId = task?.assignedTeamId ?? null;
+    this.isEditingDetails = false;
     this.detailTitle = task?.title ?? '';
     this.detailDescription = task?.description ?? '';
     this.detailPriority = task?.priority ?? 'MEDIUM';
@@ -313,6 +337,7 @@ export class App implements OnInit {
     this.comments = [];
     this.assignmentUserId = null;
     this.assignmentTeamId = null;
+    this.isEditingDetails = false;
     this.detailTitle = '';
     this.detailDescription = '';
     this.detailPriority = 'MEDIUM';
@@ -322,6 +347,7 @@ export class App implements OnInit {
 
   protected setFilter(filter: QueueFilter): void {
     this.activeFilter = filter;
+    this.currentPage = 1;
   }
 
   protected setNavigation(label: string): void {
@@ -329,6 +355,15 @@ export class App implements OnInit {
     if (label !== 'Requests') {
       this.closeTicketModal();
     }
+  }
+
+  protected setPageSize(pageSize: number): void {
+    this.pageSize = pageSize;
+    this.currentPage = 1;
+  }
+
+  protected setCurrentPage(page: number): void {
+    this.currentPage = Math.min(Math.max(page, 1), this.totalPages);
   }
 
   protected openTaskFromAlert(taskId: number): void {
@@ -364,6 +399,26 @@ export class App implements OnInit {
 
   protected setDetailPriority(value: TaskPriority): void {
     this.detailPriority = value;
+  }
+
+  protected beginDetailsEdit(): void {
+    const task = this.selectedTask;
+    if (!task) {
+      return;
+    }
+
+    this.isEditingDetails = true;
+    this.detailTitle = task.title;
+    this.detailDescription = task.description ?? '';
+    this.detailPriority = task.priority ?? 'MEDIUM';
+  }
+
+  protected cancelDetailsEdit(): void {
+    const task = this.selectedTask;
+    this.isEditingDetails = false;
+    this.detailTitle = task?.title ?? '';
+    this.detailDescription = task?.description ?? '';
+    this.detailPriority = task?.priority ?? 'MEDIUM';
   }
 
   protected setEditingCommentText(value: string): void {
@@ -411,7 +466,9 @@ export class App implements OnInit {
     const payload: TaskRequestPayload = {
       title: this.detailTitle.trim(),
       description: this.detailDescription.trim() || null,
-      priority: this.detailPriority
+      priority: this.detailPriority,
+      assignedUserId: this.assignmentUserId,
+      assignedTeamId: this.assignmentTeamId
     };
 
     this.persistTaskUpdate(task.id, payload);
@@ -628,6 +685,7 @@ export class App implements OnInit {
         this.tasks = tasks;
         this.isLoading = false;
         this.isTaskListRefreshing = false;
+        this.currentPage = Math.min(this.currentPage, this.totalPages);
 
         const fallbackTaskId = preferredTaskId ?? this.selectedTaskId ?? null;
         if (fallbackTaskId && this.tasks.some(task => task.id === fallbackTaskId)) {
@@ -657,6 +715,7 @@ export class App implements OnInit {
     this.api.updateTask(taskId, payload).subscribe({
       next: updatedTask => {
         this.isSaving = false;
+        this.isEditingDetails = false;
         this.tasks = this.tasks.map(task => task.id === updatedTask.id ? updatedTask : task);
         this.selectTicket(updatedTask.id);
       },

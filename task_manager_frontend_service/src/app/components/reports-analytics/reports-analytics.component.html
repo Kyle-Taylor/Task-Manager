@@ -150,7 +150,7 @@
       <div class="hotspot-list">
         @for (item of assigneeHotspots; track item.id) {
           <div class="hotspot-row">
-            <div>
+            <div class="hotspot-copy">
               <strong>{{ item.username }}</strong>
               <span>{{ item.openCount }} open tasks</span>
             </div>
@@ -178,7 +178,7 @@
       <div class="hotspot-list">
         @for (item of unreadTasksByTeam; track item.id) {
           <div class="hotspot-row">
-            <div>
+            <div class="hotspot-copy">
               <strong>{{ item.name }}</strong>
               <span>Unread work waiting for review</span>
             </div>

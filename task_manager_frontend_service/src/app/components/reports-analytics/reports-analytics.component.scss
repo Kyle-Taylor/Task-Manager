@@ -225,6 +225,16 @@
   align-items: center;
 }
 
+.hotspot-copy {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.hotspot-copy strong {
+  display: block;
+  color: var(--title-text);
+}
+
 .metric-chip {
   display: inline-flex;
   align-items: center;

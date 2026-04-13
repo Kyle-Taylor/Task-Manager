@@ -16,11 +16,14 @@ export class RequestModalComponent {
   @Input({ required: true }) context: RequestModalContext | null = null;
   @Input({ required: true }) statusLabel!: (status: TaskStatus | null) => string;
   @Input({ required: true }) statusClass!: (status: TaskStatus | null) => string;
+  @Input({ required: true }) priorityClass!: (priority: TaskPriority | null) => string;
   @Input({ required: true }) formatDateTime!: (value: string | null) => string;
   @Input({ required: true }) formatDueDate!: (value: string | null) => string;
 
   @Output() close = new EventEmitter<void>();
   @Output() updateStatus = new EventEmitter<TaskStatus>();
+  @Output() beginDetailsEdit = new EventEmitter<void>();
+  @Output() cancelDetailsEdit = new EventEmitter<void>();
   @Output() detailTitleChange = new EventEmitter<string>();
   @Output() detailDescriptionChange = new EventEmitter<string>();
   @Output() detailPriorityChange = new EventEmitter<TaskPriority>();

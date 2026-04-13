@@ -10,19 +10,108 @@
             <span class="read-pill" [class.unread]="vm.task.readStatus === 'UNREAD'" [class.read]="vm.task.readStatus === 'READ'">
               {{ vm.task.readStatus === 'UNREAD' ? 'Unread' : 'Read' }}
             </span>
+            @if (vm.isEditingDetails) {
+              <label class="toolbar-select assignment-select">
+                <span>Assignee</span>
+                <select [ngModel]="vm.assignmentUserId" (ngModelChange)="assignmentUserIdChange.emit($event)">
+                  <option [ngValue]="null">Unassigned</option>
+                  @for (user of vm.users; track user.id) {
+                    <option [ngValue]="user.id">{{ user.username }}</option>
+                  }
+                </select>
+              </label>
+              <label class="toolbar-select assignment-select">
+                <span>Team</span>
+                <select [ngModel]="vm.assignmentTeamId" (ngModelChange)="assignmentTeamIdChange.emit($event)">
+                  <option [ngValue]="null">No team</option>
+                  @for (team of vm.teams; track team.id) {
+                    <option [ngValue]="team.id">{{ team.name }}</option>
+                  }
+                </select>
+              </label>
+            } @else {
+              <span class="detail-toolbar-item">Assignee: {{ vm.selectedUser?.username ?? 'Unassigned' }}</span>
+              <span class="detail-toolbar-item">Team: {{ vm.selectedTeam?.name ?? 'No team' }}</span>
+            }
           </div>
         </div>
         <button type="button" class="modal-close" aria-label="Close request detail" (click)="close.emit()">X</button>
       </div>
 
       <div class="detail-intro">
-        <div>
-          <h4>{{ vm.task.title }}</h4>
-          <p class="detail-copy">{{ vm.task.description || 'No description provided.' }}</p>
+        <div class="detail-copy-shell" [class.is-editing]="vm.isEditingDetails">
+          <div class="detail-actions-row">
+            @if (vm.isEditingDetails) {
+              <p class="eyebrow">Editing request</p>
+              <div class="inline-actions detail-edit-actions">
+                <button type="button" class="primary-button slim-button" [disabled]="vm.isSaving" (click)="saveDetails.emit()">
+                  Save
+                </button>
+                <button type="button" class="ghost-button slim-button" [disabled]="vm.isSaving" (click)="cancelDetailsEdit.emit()">
+                  Cancel
+                </button>
+              </div>
+            } @else {
+              <div class="inline-actions detail-edit-actions">
+                <button type="button" class="ghost-button slim-button" [disabled]="vm.isSaving" (click)="beginDetailsEdit.emit()">
+                  Edit
+                </button>
+              </div>
+            }
+          </div>
+
+          @if (vm.isEditingDetails) {
+            <div class="detail-edit-main">
+              <label class="detail-edit-field">
+                <span class="detail-edit-label">Title</span>
+                <input
+                  id="request-modal-title"
+                  type="text"
+                  class="detail-title-input"
+                  [ngModel]="vm.detailTitle"
+                  (ngModelChange)="detailTitleChange.emit($event)"
+                  placeholder="Enter ticket title" />
+              </label>
+
+              <label class="detail-edit-field">
+                <span class="detail-edit-label">Description</span>
+                <textarea
+                  class="detail-description-input"
+                  [ngModel]="vm.detailDescription"
+                  (ngModelChange)="detailDescriptionChange.emit($event)"
+                  rows="4"
+                  placeholder="Describe the request"></textarea>
+              </label>
+            </div>
+          } @else {
+            <div class="detail-read-field">
+              <span class="detail-edit-label">Title</span>
+              <h4 id="request-modal-title">{{ vm.task.title }}</h4>
+            </div>
+          }
+
+          @if (!vm.isEditingDetails) {
+            <div class="detail-read-field">
+              <span class="detail-edit-label">Description</span>
+              <p class="detail-copy">{{ vm.task.description || 'No description provided.' }}</p>
+            </div>
+          }
         </div>
         <div class="detail-toolbar">
-          <span class="detail-toolbar-item">State: {{ vm.task.readStatus === 'UNREAD' ? 'Unread' : 'Read' }}</span>
-          <span class="detail-toolbar-item">Priority: {{ vm.task.priority ?? 'LOW' }}</span>
+          @if (vm.isEditingDetails) {
+            <label class="toolbar-select priority-select" [ngClass]="priorityClass(vm.detailPriority)">
+              <span>Priority</span>
+              <select [ngModel]="vm.detailPriority" (ngModelChange)="detailPriorityChange.emit($event)">
+                @for (priority of vm.priorities; track priority) {
+                  <option [ngValue]="priority">{{ priority }}</option>
+                }
+              </select>
+            </label>
+          } @else {
+            <span class="detail-toolbar-item priority-pill" [ngClass]="priorityClass(vm.task.priority)">
+              Priority: {{ vm.task.priority ?? 'LOW' }}
+            </span>
+          }
           <span class="detail-toolbar-item">Due: {{ formatDueDate(vm.task.dueDate) }}</span>
           <span class="detail-toolbar-item">Updated: {{ formatDateTime(vm.task.updatedAt) }}</span>
         </div>
@@ -41,110 +130,7 @@
         }
       </div>
 
-      <div class="modal-grid">
-        <section class="detail-section metadata">
-          <h5>Ticket metadata</h5>
-          <div class="detail-grid">
-            <article class="detail-card">
-              <p class="detail-label">Assigned user</p>
-              <strong class="detail-value">{{ vm.selectedUser?.username ?? 'Unassigned' }}</strong>
-              <span class="detail-subcopy">{{ vm.selectedUser?.email ?? 'No user selected' }}</span>
-            </article>
-            <article class="detail-card">
-              <p class="detail-label">Assigned team</p>
-              <strong class="detail-value">{{ vm.selectedTeam?.name ?? 'No team' }}</strong>
-              <span class="detail-subcopy">{{ vm.selectedTeam?.description ?? 'No team metadata available' }}</span>
-            </article>
-            <article class="detail-card">
-              <p class="detail-label">Priority</p>
-              <strong class="detail-value">{{ vm.task.priority ?? 'LOW' }}</strong>
-              <span class="detail-subcopy">Created {{ formatDateTime(vm.task.createdAt) }}</span>
-            </article>
-            <article class="detail-card">
-              <p class="detail-label">Due date</p>
-              <strong class="detail-value">{{ formatDueDate(vm.task.dueDate) }}</strong>
-              <span class="detail-subcopy">Last updated {{ formatDateTime(vm.task.updatedAt) }}</span>
-            </article>
-          </div>
-
-          <div class="assignment-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="eyebrow">Details</p>
-                <h5>Edit request</h5>
-              </div>
-            </div>
-
-            <div class="field-stack">
-              <label class="field field-full">
-                <span>Title</span>
-                <input
-                  type="text"
-                  [ngModel]="vm.detailTitle"
-                  (ngModelChange)="detailTitleChange.emit($event)"
-                  placeholder="Enter ticket title" />
-              </label>
-
-              <label class="field field-full">
-                <span>Description</span>
-                <textarea
-                  [ngModel]="vm.detailDescription"
-                  (ngModelChange)="detailDescriptionChange.emit($event)"
-                  rows="4"
-                  placeholder="Describe the request"></textarea>
-              </label>
-
-              <label class="field">
-                <span>Priority</span>
-                <select [ngModel]="vm.detailPriority" (ngModelChange)="detailPriorityChange.emit($event)">
-                  @for (priority of vm.priorities; track priority) {
-                    <option [ngValue]="priority">{{ priority }}</option>
-                  }
-                </select>
-              </label>
-            </div>
-
-            <button type="button" class="primary-button slim-button" [disabled]="vm.isSaving" (click)="saveDetails.emit()">
-              Save details
-            </button>
-          </div>
-
-          <div class="assignment-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="eyebrow">Assignment</p>
-                <h5>Update routing</h5>
-              </div>
-            </div>
-
-            <div class="form-grid">
-              <label class="field">
-                <span>User</span>
-                <select [ngModel]="vm.assignmentUserId" (ngModelChange)="assignmentUserIdChange.emit($event)">
-                  <option [ngValue]="null">Unassigned</option>
-                  @for (user of vm.users; track user.id) {
-                    <option [ngValue]="user.id">{{ user.username }}</option>
-                  }
-                </select>
-              </label>
-
-              <label class="field">
-                <span>Team</span>
-                <select [ngModel]="vm.assignmentTeamId" (ngModelChange)="assignmentTeamIdChange.emit($event)">
-                  <option [ngValue]="null">No team</option>
-                  @for (team of vm.teams; track team.id) {
-                    <option [ngValue]="team.id">{{ team.name }}</option>
-                  }
-                </select>
-              </label>
-            </div>
-
-            <button type="button" class="primary-button slim-button" [disabled]="vm.isSaving" (click)="saveAssignment.emit()">
-              Save assignment
-            </button>
-          </div>
-        </section>
-
+      <section class="comments-section">
         <section class="detail-section comments">
           <div class="panel-heading">
             <div>
@@ -216,8 +202,7 @@
             </div>
           }
         </section>
-
-      </div>
+      </section>
     </section>
   </div>
 }

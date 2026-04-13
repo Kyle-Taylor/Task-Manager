@@ -43,6 +43,25 @@
   font-size: 0.82rem;
 }
 
+.page-size-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+  color: var(--muted-text);
+  font-size: 0.78rem;
+}
+
+.page-size-control select {
+  min-height: 34px;
+  padding: 0 1.9rem 0 0.7rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  background: var(--panel-background-strong);
+  color: var(--jet-black);
+  font: inherit;
+}
+
 .ghost-button,
 .primary-button {
   min-height: 34px;
@@ -88,6 +107,45 @@
 
 .table-wrap {
   overflow: auto;
+}
+
+.pagination-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.pagination-pages {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.pager-button {
+  min-width: 38px;
+  min-height: 36px;
+  padding: 0 0.8rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  background: var(--panel-background-strong);
+  color: var(--jet-black);
+  font: inherit;
+  cursor: pointer;
+}
+
+.pager-button.is-selected {
+  background: var(--action-fill);
+  color: var(--action-fill-text);
+  border-color: var(--action-fill-border);
+}
+
+.pager-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 table {
@@ -274,6 +332,14 @@ tbody tr.is-highlighted {
   }
 
   .panel-actions {
+    justify-content: flex-start;
+  }
+
+  .page-size-control {
+    margin-left: 0;
+  }
+
+  .pagination-row {
     justify-content: flex-start;
   }
 }

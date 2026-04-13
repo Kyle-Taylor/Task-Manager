@@ -4,7 +4,15 @@
       <p class="eyebrow">Requests</p>
       <div class="heading-row">
         <h3>Requests</h3>
-        <span class="queue-summary">{{ activeFilter }} queue - {{ filteredTickets.length }} shown</span>
+        <span class="queue-summary">{{ activeFilter }} queue - {{ currentPageTickets.length }} shown</span>
+        <label class="page-size-control">
+          <span>Show</span>
+          <select [ngModel]="pageSize" (ngModelChange)="pageSizeChange.emit($event)">
+            @for (option of pageSizeOptions; track option) {
+              <option [ngValue]="option">{{ option }}</option>
+            }
+          </select>
+        </label>
       </div>
     </div>
 
@@ -49,7 +57,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (ticket of filteredTickets; track ticket.id) {
+          @for (ticket of currentPageTickets; track ticket.id) {
             <tr
               [class.is-highlighted]="ticket.id === selectedTaskId"
               [class.is-unread]="ticket.readStatus === 'UNREAD'"
@@ -88,6 +96,26 @@
           }
         </tbody>
       </table>
+    </div>
+
+    <div class="pagination-row">
+      <button type="button" class="pager-button" [disabled]="currentPage <= 1" (click)="pageChange.emit(currentPage - 1)">
+        Previous
+      </button>
+      <div class="pagination-pages">
+        @for (page of pageNumbers; track page) {
+          <button
+            type="button"
+            class="pager-button"
+            [class.is-selected]="currentPage === page"
+            (click)="pageChange.emit(page)">
+            {{ page }}
+          </button>
+        }
+      </div>
+      <button type="button" class="pager-button" [disabled]="currentPage >= totalPages" (click)="pageChange.emit(currentPage + 1)">
+        Next
+      </button>
     </div>
   }
 </div>

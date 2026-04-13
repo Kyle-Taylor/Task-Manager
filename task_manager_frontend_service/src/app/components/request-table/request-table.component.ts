@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 import { Task, TaskPriority, TaskStatus } from '../../core/business-api.types';
 import { QueueFilter, SortDirection, TaskSortField } from '../../shared/dashboard.types';
@@ -7,16 +8,22 @@ import { QueueFilter, SortDirection, TaskSortField } from '../../shared/dashboar
 @Component({
   selector: 'app-request-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './request-table.component.html',
   styleUrl: './request-table.component.scss'
 })
 export class RequestTableComponent {
+  @Input({ required: true }) pageSizeOptions: number[] = [];
   @Input({ required: true }) filters: QueueFilter[] = [];
   @Input({ required: true }) activeFilter: QueueFilter = 'All requests';
   @Input({ required: true }) isLoading = false;
   @Input({ required: true }) filteredTickets: Task[] = [];
+  @Input({ required: true }) currentPageTickets: Task[] = [];
   @Input() selectedTaskId: number | null = null;
+  @Input({ required: true }) currentPage = 1;
+  @Input({ required: true }) pageNumbers: number[] = [];
+  @Input({ required: true }) totalPages = 1;
+  @Input({ required: true }) pageSize = 10;
   @Input({ required: true }) getUserName!: (userId: number | null) => string;
   @Input({ required: true }) getTeamName!: (teamId: number | null) => string;
   @Input({ required: true }) statusLabel!: (status: TaskStatus | null) => string;
@@ -32,6 +39,8 @@ export class RequestTableComponent {
   @Output() refresh = new EventEmitter<void>();
   @Output() createRequest = new EventEmitter<void>();
   @Output() sortChange = new EventEmitter<TaskSortField>();
+  @Output() pageSizeChange = new EventEmitter<number>();
+  @Output() pageChange = new EventEmitter<number>();
 
   protected toggleSort(field: TaskSortField): void {
     this.sortChange.emit(field);

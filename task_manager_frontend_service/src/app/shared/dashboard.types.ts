@@ -1,6 +1,6 @@
 import { Task, TaskComment, TaskPriority, TaskStatus, Team, User } from '../core/business-api.types';
 
-export type QueueFilter = 'All requests' | 'My queue' | 'Unassigned' | 'Breaching SLA' | 'Cancelled';
+export type QueueFilter = 'All requests' | 'Open requests' | 'My queue' | 'Unassigned' | 'Breaching SLA' | 'Cancelled';
 export type TaskSortField = 'id' | 'status' | 'priority' | 'team' | 'assignee' | 'due' | 'updated' | 'created';
 export type SortDirection = 'asc' | 'desc';
 
@@ -50,6 +50,7 @@ export interface RequestModalContext {
   priorities: TaskPriority[];
   isSaving: boolean;
   isRefreshingComments: boolean;
+  isEditingDetails: boolean;
   detailTitle: string;
   detailDescription: string;
   detailPriority: TaskPriority;

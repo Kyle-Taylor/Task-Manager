@@ -27,11 +27,17 @@
     } @else {
       <section class="board">
         <app-request-table
+          [pageSizeOptions]="pageSizeOptions"
           [filters]="filters"
           [activeFilter]="activeFilter"
           [isLoading]="isLoading"
           [filteredTickets]="filteredTickets"
+          [currentPageTickets]="currentPageTickets"
           [selectedTaskId]="selectedTaskId"
+          [currentPage]="currentPage"
+          [pageNumbers]="pageNumbers"
+          [totalPages]="totalPages"
+          [pageSize]="pageSize"
           [getUserName]="getUserName.bind(this)"
           [getTeamName]="getTeamName.bind(this)"
           [statusLabel]="statusLabel.bind(this)"
@@ -45,7 +51,9 @@
           (ticketSelect)="selectTicket($event)"
           (refresh)="refreshDashboard()"
           (createRequest)="toggleCreateDrawer()"
-          (sortChange)="changeSort($event)" />
+          (sortChange)="changeSort($event)"
+          (pageSizeChange)="setPageSize($event)"
+          (pageChange)="setCurrentPage($event)" />
       </section>
     }
   </section>
@@ -55,10 +63,13 @@
       [context]="modalContext"
       [statusLabel]="statusLabel.bind(this)"
       [statusClass]="statusClass.bind(this)"
+      [priorityClass]="priorityClass.bind(this)"
       [formatDateTime]="formatDateTime.bind(this)"
       [formatDueDate]="formatDueDate.bind(this)"
       (close)="closeTicketModal()"
       (updateStatus)="updateStatus($event)"
+      (beginDetailsEdit)="beginDetailsEdit()"
+      (cancelDetailsEdit)="cancelDetailsEdit()"
       (detailTitleChange)="setDetailTitle($event)"
       (detailDescriptionChange)="setDetailDescription($event)"
       (detailPriorityChange)="setDetailPriority($event)"
