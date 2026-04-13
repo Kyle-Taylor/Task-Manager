@@ -1,0 +1,118 @@
+:root {
+  --onyx: #000f08ff;
+  --jet-black: #1c3738ff;
+  --charcoal: #4d4847ff;
+  --mint-cream: #f4fff8ff;
+  --cool-steel: #8baaadff;
+
+  --page-background: var(--mint-cream);
+  --page-overlay: linear-gradient(180deg, rgba(139, 170, 173, 0.14), rgba(244, 255, 248, 0.96) 18%);
+  --body-text: var(--onyx);
+  --muted-text: var(--charcoal);
+  --panel-background: rgba(244, 255, 248, 0.92);
+  --panel-background-strong: rgba(244, 255, 248, 0.98);
+  --panel-border: rgba(139, 170, 173, 0.24);
+  --panel-border-strong: rgba(139, 170, 173, 0.32);
+  --surface-muted: rgba(139, 170, 173, 0.12);
+  --surface-muted-strong: rgba(139, 170, 173, 0.18);
+  --surface-hover: rgba(139, 170, 173, 0.14);
+  --table-border: #e6ecf2;
+  --card-background: #fff;
+  --card-background-muted: #f8fafc;
+  --card-border: #dde3ec;
+  --field-border: #d3dde8;
+  --title-text: #11213a;
+  --secondary-text: #677286;
+  --accent-text: #a36114;
+  --chip-warning-bg: #fff1dd;
+  --chip-warning-text: #a35a00;
+  --chip-info-bg: #ecf4ff;
+  --chip-info-text: #295aa6;
+  --chip-success-bg: #eef7ec;
+  --chip-success-text: #3d7a28;
+  --chip-danger-bg: #ffe4e4;
+  --chip-danger-text: #c23a3a;
+  --shadow-soft: rgba(0, 15, 8, 0.08);
+  --shadow-strong: rgba(0, 15, 8, 0.22);
+  --overlay-backdrop: rgba(17, 33, 58, 0.52);
+  --header-surface: #1c3738;
+  --header-text: #f4fff8;
+  --header-text-muted: rgba(244, 255, 248, 0.8);
+  --header-active-bg: #8baaad;
+  --header-active-text: #000f08;
+  --action-fill: #1c3738;
+  --action-fill-text: #f4fff8;
+  --action-fill-border: #1c3738;
+  --avatar-bg: #f4fff8;
+  --avatar-text: #1c3738;
+}
+
+body[data-theme='dark'] {
+  --onyx: #f5f7f8;
+  --jet-black: #f1f5f6;
+  --charcoal: #9ba8ad;
+  --mint-cream: #12191d;
+  --cool-steel: #58727d;
+
+  --page-background: #0b1114;
+  --page-overlay: linear-gradient(180deg, rgba(32, 45, 51, 0.82), rgba(11, 17, 20, 0.98) 18%);
+  --body-text: #eaf0f2;
+  --muted-text: #98a7ad;
+  --panel-background: rgba(17, 24, 28, 0.94);
+  --panel-background-strong: rgba(21, 29, 34, 0.98);
+  --panel-border: rgba(103, 122, 130, 0.22);
+  --panel-border-strong: rgba(121, 142, 151, 0.34);
+  --surface-muted: rgba(64, 82, 90, 0.24);
+  --surface-muted-strong: rgba(78, 99, 108, 0.34);
+  --surface-hover: rgba(88, 114, 125, 0.22);
+  --table-border: #202d33;
+  --card-background: #131b20;
+  --card-background-muted: #10171b;
+  --card-border: #223038;
+  --field-border: #31424b;
+  --title-text: #f7fbfc;
+  --secondary-text: #96a6ac;
+  --accent-text: #d6a75d;
+  --chip-warning-bg: #4b3718;
+  --chip-warning-text: #f0c47c;
+  --chip-info-bg: #24385b;
+  --chip-info-text: #9ebeff;
+  --chip-success-bg: #203d2d;
+  --chip-success-text: #8fd0a9;
+  --chip-danger-bg: #4c2527;
+  --chip-danger-text: #f0a7a7;
+  --shadow-soft: rgba(0, 0, 0, 0.28);
+  --shadow-strong: rgba(0, 0, 0, 0.42);
+  --overlay-backdrop: rgba(4, 7, 9, 0.72);
+  --header-surface: #141c21;
+  --header-text: #f3f7f8;
+  --header-text-muted: rgba(213, 225, 230, 0.78);
+  --header-active-bg: #31444d;
+  --header-active-text: #f7fbfc;
+  --action-fill: #2d4048;
+  --action-fill-text: #f7fbfc;
+  --action-fill-border: #385059;
+  --avatar-bg: #0b1216;
+  --avatar-text: #f2f6f7;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Instrument Sans", "Segoe UI", sans-serif;
+  background: var(--page-background);
+  color: var(--body-text);
+  transition: background 180ms ease, color 180ms ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+}

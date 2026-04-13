@@ -50,6 +50,7 @@ Example:
 - `GET /api/tasks/{id}` - get one task
 - `POST /api/tasks` - create task
 - `PATCH /api/tasks/{id}` - update task
+- `PATCH /api/tasks/{id}/read?viewerUserId={userId}` - mark a task as read when the opener is allowed to clear it
 
 Example:
 
@@ -64,6 +65,8 @@ Example:
   "dueDate": "2026-04-10T17:00:00"
 }
 ```
+
+Task responses now also include `readStatus` with values `READ` or `UNREAD`.
 
 ### Comments
 

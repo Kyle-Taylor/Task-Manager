@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.skillstorm.task_manager_business_service.Exceptions.ResourceNotFoundException;
 import com.skillstorm.task_manager_business_service.Models.Team;
 import com.skillstorm.task_manager_business_service.Services.TeamService;
 
@@ -27,41 +28,23 @@ public class TeamController {
 
     @GetMapping
     public ResponseEntity<List<Team>> getAllTeams() {
-        try {
-            return ResponseEntity.ok(teamService.getAllTeams());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
+        return ResponseEntity.ok(teamService.getAllTeams());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Team> getTeamById(@PathVariable Long id) {
-        try {
-            return teamService.getTeamById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
+        Team team = teamService.getTeamById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Team not found with id: " + id));
+        return ResponseEntity.ok(team);
     }
 
     @PostMapping
     public ResponseEntity<Team> createTeam(@RequestBody Team team) {
-        try {
-            return ResponseEntity.ok(teamService.createTeam(team));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
+        return ResponseEntity.ok(teamService.createTeam(team));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Team> updateTeam(@PathVariable Long id, @RequestBody Team team) {
-        try {
-            return ResponseEntity.ok(teamService.updateTeam(id, team));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
+        return ResponseEntity.ok(teamService.updateTeam(id, team));
     }
 }

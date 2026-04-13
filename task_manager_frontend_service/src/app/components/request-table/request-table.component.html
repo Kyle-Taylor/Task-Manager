@@ -1,0 +1,93 @@
+<div class="queue-panel">
+  <div class="panel-heading">
+    <div>
+      <p class="eyebrow">Requests</p>
+      <div class="heading-row">
+        <h3>Requests</h3>
+        <span class="queue-summary">{{ activeFilter }} queue - {{ filteredTickets.length }} shown</span>
+      </div>
+    </div>
+
+    <div class="panel-actions">
+      <button type="button" class="ghost-button" (click)="refresh.emit()">Refresh</button>
+      <button type="button" class="primary-button" (click)="createRequest.emit()">New Request</button>
+    </div>
+  </div>
+
+  <div class="filter-row">
+    @for (filter of filters; track filter) {
+      <button type="button" class="filter-chip" [class.is-selected]="filter === activeFilter" (click)="filterChange.emit(filter)">
+        {{ filter }}
+      </button>
+    }
+  </div>
+
+  @if (isLoading) {
+    <div class="empty-state">
+      <strong>Loading request queue...</strong>
+      <span>Fetching tasks, users, and teams from the business service.</span>
+    </div>
+  } @else if (!filteredTickets.length) {
+    <div class="empty-state">
+      <strong>No requests match this filter.</strong>
+      <span>Try another queue or create a new request.</span>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th><button type="button" class="sort-button" (click)="toggleSort('id')">ID {{ sortIndicator('id') }}</button></th>
+            <th>Subject</th>
+            <th><button type="button" class="sort-button" (click)="toggleSort('status')">Status {{ sortIndicator('status') }}</button></th>
+            <th><button type="button" class="sort-button" (click)="toggleSort('priority')">Priority {{ sortIndicator('priority') }}</button></th>
+            <th><button type="button" class="sort-button" (click)="toggleSort('team')">Team {{ sortIndicator('team') }}</button></th>
+            <th><button type="button" class="sort-button" (click)="toggleSort('assignee')">Assignee {{ sortIndicator('assignee') }}</button></th>
+            <th><button type="button" class="sort-button" (click)="toggleSort('due')">Due {{ sortIndicator('due') }}</button></th>
+            <th><button type="button" class="sort-button" (click)="toggleSort('updated')">Updated {{ sortIndicator('updated') }}</button></th>
+            <th><button type="button" class="sort-button" (click)="toggleSort('created')">Created {{ sortIndicator('created') }}</button></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (ticket of filteredTickets; track ticket.id) {
+            <tr
+              [class.is-highlighted]="ticket.id === selectedTaskId"
+              [class.is-unread]="ticket.readStatus === 'UNREAD'"
+              (click)="ticketSelect.emit(ticket.id)">
+              <td class="ticket-id">#{{ ticket.id }}</td>
+              <td>
+                <div class="ticket-subject">
+                  <div class="ticket-subject-row">
+                    <strong>{{ ticket.title }}</strong>
+                    @if (ticket.readStatus === 'UNREAD') {
+                      <span class="read-pill unread">
+                        <span class="read-pill-alert" aria-hidden="true">!</span>
+                        Unread
+                      </span>
+                    }
+                  </div>
+                  <span>{{ getUserName(ticket.assignedUserId) }} - {{ getTeamName(ticket.assignedTeamId) }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="status-pill" [ngClass]="statusClass(ticket.status)">
+                  {{ statusLabel(ticket.status) }}
+                </span>
+              </td>
+              <td>
+                <span class="priority-pill" [ngClass]="priorityClass(ticket.priority)">
+                  {{ ticket.priority ?? 'LOW' }}
+                </span>
+              </td>
+              <td>{{ getTeamName(ticket.assignedTeamId) }}</td>
+              <td>{{ getUserName(ticket.assignedUserId) }}</td>
+              <td>{{ formatDueDate(ticket.dueDate) }}</td>
+              <td>{{ formatDateTime(ticket.updatedAt ?? ticket.createdAt) }}</td>
+              <td>{{ formatDateTime(ticket.createdAt) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

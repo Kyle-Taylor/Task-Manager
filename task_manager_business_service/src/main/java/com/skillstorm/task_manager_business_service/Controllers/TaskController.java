@@ -7,14 +7,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.skillstorm.task_manager_business_service.DTOs.TaskRequestDTO;
-import com.skillstorm.task_manager_business_service.Exceptions.InvalidReferenceException;
+import com.skillstorm.task_manager_business_service.Exceptions.ResourceNotFoundException;
 import com.skillstorm.task_manager_business_service.Models.Task;
 import com.skillstorm.task_manager_business_service.Services.TaskService;
+import tools.jackson.databind.JsonNode;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -27,46 +29,32 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks() {
-        try {
-            return ResponseEntity.ok(taskService.getAllTasks());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
+    public ResponseEntity<List<Task>> getAllTasks(
+        @RequestParam(defaultValue = "updated") String sortBy,
+        @RequestParam(defaultValue = "desc") String direction
+    ) {
+        return ResponseEntity.ok(taskService.getAllTasks(sortBy, direction));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
-        try {
-            return taskService.getTaskById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
+        Task task = taskService.getTaskById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
+        return ResponseEntity.ok(task);
     }
 
     @PostMapping
     public ResponseEntity<Task> createTask(@RequestBody TaskRequestDTO task) {
-        try {
-            return ResponseEntity.ok(taskService.createTask(task));
-        } catch (InvalidReferenceException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
+        return ResponseEntity.ok(taskService.createTask(task));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody TaskRequestDTO task) {
-        try {
-            return ResponseEntity.ok(taskService.updateTask(id, task));
-        } catch (InvalidReferenceException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
+    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody JsonNode task) {
+        return ResponseEntity.ok(taskService.updateTask(id, task));
+    }
+
+    @PatchMapping("/{id}/read")
+    public ResponseEntity<Task> markTaskAsRead(@PathVariable Long id, @RequestParam Long viewerUserId) {
+        return ResponseEntity.ok(taskService.markTaskAsRead(id, viewerUserId));
     }
 }

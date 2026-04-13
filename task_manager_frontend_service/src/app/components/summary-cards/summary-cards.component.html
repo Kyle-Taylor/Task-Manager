@@ -1,0 +1,9 @@
+<section class="summary-grid">
+  @for (card of cards; track card.label) {
+    <article class="summary-card" [attr.data-tone]="card.tone">
+      <p class="summary-label">{{ card.label }}</p>
+      <strong>{{ card.value }}</strong>
+      <span>{{ card.detail }}</span>
+    </article>
+  }
+</section>

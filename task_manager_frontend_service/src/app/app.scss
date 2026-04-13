@@ -1,0 +1,36 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.workspace {
+  min-height: 100vh;
+  display: block;
+  position: relative;
+}
+
+.main-shell {
+  padding: 0.9rem;
+  background: var(--page-overlay), var(--page-background);
+}
+
+.error-banner {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--panel-background);
+  color: var(--body-text);
+}
+
+.board {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 760px) {
+  .main-shell {
+    padding: 0.65rem;
+  }
+}

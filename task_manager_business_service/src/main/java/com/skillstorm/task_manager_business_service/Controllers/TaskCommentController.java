@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.skillstorm.task_manager_business_service.DTOs.TaskCommentRequestDTO;
 import com.skillstorm.task_manager_business_service.Models.TaskComment;
 import com.skillstorm.task_manager_business_service.Services.TaskCommentService;
 
@@ -26,31 +28,22 @@ public class TaskCommentController {
 
     @GetMapping("/task/{taskId}")
     public ResponseEntity<List<TaskComment>> getCommentsByTaskId(@PathVariable Long taskId) {
-        try {
-            return ResponseEntity.ok(taskCommentService.getCommentsByTaskId(taskId));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
+        return ResponseEntity.ok(taskCommentService.getCommentsByTaskId(taskId));
+    }
+
+    @PostMapping
+    public ResponseEntity<TaskComment> createComment(@RequestBody TaskCommentRequestDTO request) {
+        return ResponseEntity.ok(taskCommentService.createComment(request));
     }
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
-        try {
-            taskCommentService.deleteComment(commentId);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
+        taskCommentService.deleteComment(commentId);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{commentId}")
     public ResponseEntity<TaskComment> updateComment(@PathVariable Long commentId, @RequestBody String newText) {
-        try {
-            return ResponseEntity.ok(taskCommentService.updateComment(commentId, newText));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
+        return ResponseEntity.ok(taskCommentService.updateComment(commentId, newText));
     }
 }

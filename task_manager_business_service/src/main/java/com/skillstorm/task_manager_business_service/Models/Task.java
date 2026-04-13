@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.skillstorm.task_manager_business_service.Enums.Priority;
+import com.skillstorm.task_manager_business_service.Enums.ReadStatus;
 import com.skillstorm.task_manager_business_service.Enums.Status;
 
 import jakarta.persistence.Column;
@@ -45,6 +46,10 @@ public class Task {
     @Column(name = "priority")
     private Priority priority;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "read_status", nullable = false)
+    private ReadStatus readStatus;
+
     @Column(name = "due_date")
     private LocalDateTime dueDate;
 
@@ -78,6 +83,9 @@ public class Task {
 
     public Priority getPriority() { return priority; }
     public void setPriority(Priority priority) { this.priority = priority; }
+
+    public ReadStatus getReadStatus() { return readStatus; }
+    public void setReadStatus(ReadStatus readStatus) { this.readStatus = readStatus; }
 
     public LocalDateTime getDueDate() { return dueDate; }
     public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
