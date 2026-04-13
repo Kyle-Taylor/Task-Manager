@@ -1,100 +1,124 @@
 <main class="workspace">
-  <section class="main-shell">
-    <app-topbar
-      [activeNavigation]="activeNavigation"
-      [unreadTasks]="unreadTasks"
-      [theme]="theme"
-      (openAlertTask)="openTaskFromAlert($event)"
-      (themeChange)="setTheme($event)"
-      (navigate)="setNavigation($event)" />
+  @if (!currentUser) {
+    <app-login-screen
+      [teams]="teams"
+      [isLoading]="isLoading || isSaving"
+      [email]="loginEmail"
+      [password]="loginPassword"
+      [errorMessage]="authErrorMessage"
+      [isCreateMode]="isCreateUserMode"
+      [createUserForm]="createUserForm"
+      [createErrorMessage]="createUserErrorMessage"
+      (emailChange)="setLoginEmail($event)"
+      (passwordChange)="setLoginPassword($event)"
+      (signIn)="signIn()"
+      (toggleCreateMode)="toggleCreateUserMode()"
+      (createUsernameChange)="setCreateUsername($event)"
+      (createEmailChange)="setCreateEmail($event)"
+      (createPasswordChange)="setCreatePassword($event)"
+      (createConfirmPasswordChange)="setCreateConfirmPassword($event)"
+      (createTeamIdChange)="setCreateTeamId($event)"
+      (createAccount)="createAccount()" />
+  } @else {
+    <section class="main-shell">
+      <app-topbar
+        [activeNavigation]="activeNavigation"
+        [unreadTasks]="unreadTasks"
+        [theme]="theme"
+        [currentUser]="currentUser"
+        (openAlertTask)="openTaskFromAlert($event)"
+        (themeChange)="setTheme($event)"
+        (navigate)="setNavigation($event)"
+        (signOut)="signOut()" />
 
-    @if (errorMessage) {
-      <section class="error-banner">
-        <strong>Request failed.</strong>
-        <span>{{ errorMessage }}</span>
-      </section>
+      @if (errorMessage) {
+        <section class="error-banner">
+          <strong>Request failed.</strong>
+          <span>{{ errorMessage }}</span>
+        </section>
+      }
+
+      @if (activeNavigation === 'Reports') {
+        <app-summary-cards [cards]="summaryCards" />
+
+        <app-reports-analytics
+          [tasks]="tasks"
+          [teams]="teams"
+          [users]="users"
+          [teamLoad]="teamLoad"
+          [formatDueDate]="formatDueDate.bind(this)" />
+      } @else {
+        <section class="board">
+          <app-request-table
+            [pageSizeOptions]="pageSizeOptions"
+            [filters]="filters"
+            [activeFilter]="activeFilter"
+            [isLoading]="isLoading"
+            [filteredTickets]="filteredTickets"
+            [currentPageTickets]="currentPageTickets"
+            [selectedTaskId]="selectedTaskId"
+            [currentPage]="currentPage"
+            [pageNumbers]="pageNumbers"
+            [totalPages]="totalPages"
+            [pageSize]="pageSize"
+            [getUserName]="getUserName.bind(this)"
+            [getTeamName]="getTeamName.bind(this)"
+            [statusLabel]="statusLabel.bind(this)"
+            [statusClass]="statusClass.bind(this)"
+            [priorityClass]="priorityClass.bind(this)"
+            [formatDateTime]="formatDateTime.bind(this)"
+            [formatDueDate]="formatDueDate.bind(this)"
+            [activeSortField]="activeSortField"
+            [activeSortDirection]="activeSortDirection"
+            (filterChange)="setFilter($event)"
+            (ticketSelect)="selectTicket($event)"
+            (refresh)="refreshDashboard()"
+            (createRequest)="toggleCreateDrawer()"
+            (sortChange)="changeSort($event)"
+            (pageSizeChange)="setPageSize($event)"
+            (pageChange)="setCurrentPage($event)" />
+        </section>
+      }
+    </section>
+
+    @if (activeNavigation === 'Requests') {
+      <app-request-modal
+        [context]="modalContext"
+        [statusLabel]="statusLabel.bind(this)"
+        [statusClass]="statusClass.bind(this)"
+        [priorityClass]="priorityClass.bind(this)"
+        [formatDateTime]="formatDateTime.bind(this)"
+        [formatDueDate]="formatDueDate.bind(this)"
+        (close)="closeTicketModal()"
+        (updateStatus)="updateStatus($event)"
+        (beginDetailsEdit)="beginDetailsEdit()"
+        (cancelDetailsEdit)="cancelDetailsEdit()"
+        (detailTitleChange)="setDetailTitle($event)"
+        (detailDescriptionChange)="setDetailDescription($event)"
+        (detailPriorityChange)="setDetailPriority($event)"
+        (saveDetails)="saveDetails()"
+        (assignmentUserIdChange)="setAssignmentUserId($event)"
+        (assignmentTeamIdChange)="setAssignmentTeamId($event)"
+        (saveAssignment)="saveAssignment()"
+        (beginCommentEdit)="beginCommentEdit($event)"
+        (editingCommentTextChange)="setEditingCommentText($event)"
+        (newCommentTextChange)="setNewCommentText($event)"
+        (createComment)="createComment()"
+        (saveCommentEdit)="saveCommentEdit($event)"
+        (cancelCommentEdit)="cancelCommentEdit()"
+        (deleteComment)="deleteComment($event)" />
     }
 
-    @if (activeNavigation === 'Reports') {
-      <app-summary-cards [cards]="summaryCards" />
-
-      <app-reports-analytics
-        [tasks]="tasks"
-        [teams]="teams"
-        [users]="users"
-        [teamLoad]="teamLoad"
-        [formatDueDate]="formatDueDate.bind(this)" />
-    } @else {
-      <section class="board">
-        <app-request-table
-          [pageSizeOptions]="pageSizeOptions"
-          [filters]="filters"
-          [activeFilter]="activeFilter"
-          [isLoading]="isLoading"
-          [filteredTickets]="filteredTickets"
-          [currentPageTickets]="currentPageTickets"
-          [selectedTaskId]="selectedTaskId"
-          [currentPage]="currentPage"
-          [pageNumbers]="pageNumbers"
-          [totalPages]="totalPages"
-          [pageSize]="pageSize"
-          [getUserName]="getUserName.bind(this)"
-          [getTeamName]="getTeamName.bind(this)"
-          [statusLabel]="statusLabel.bind(this)"
-          [statusClass]="statusClass.bind(this)"
-          [priorityClass]="priorityClass.bind(this)"
-          [formatDateTime]="formatDateTime.bind(this)"
-          [formatDueDate]="formatDueDate.bind(this)"
-          [activeSortField]="activeSortField"
-          [activeSortDirection]="activeSortDirection"
-          (filterChange)="setFilter($event)"
-          (ticketSelect)="selectTicket($event)"
-          (refresh)="refreshDashboard()"
-          (createRequest)="toggleCreateDrawer()"
-          (sortChange)="changeSort($event)"
-          (pageSizeChange)="setPageSize($event)"
-          (pageChange)="setCurrentPage($event)" />
-      </section>
-    }
-  </section>
-
-  @if (activeNavigation === 'Requests') {
-    <app-request-modal
-      [context]="modalContext"
+    <app-create-drawer
+      [isOpen]="isCreateDrawerOpen"
+      [form]="createForm"
+      [users]="users"
+      [teams]="teams"
+      [statuses]="statuses"
+      [priorities]="priorities"
+      [isSaving]="isSaving"
       [statusLabel]="statusLabel.bind(this)"
-      [statusClass]="statusClass.bind(this)"
-      [priorityClass]="priorityClass.bind(this)"
-      [formatDateTime]="formatDateTime.bind(this)"
-      [formatDueDate]="formatDueDate.bind(this)"
-      (close)="closeTicketModal()"
-      (updateStatus)="updateStatus($event)"
-      (beginDetailsEdit)="beginDetailsEdit()"
-      (cancelDetailsEdit)="cancelDetailsEdit()"
-      (detailTitleChange)="setDetailTitle($event)"
-      (detailDescriptionChange)="setDetailDescription($event)"
-      (detailPriorityChange)="setDetailPriority($event)"
-      (saveDetails)="saveDetails()"
-      (assignmentUserIdChange)="setAssignmentUserId($event)"
-      (assignmentTeamIdChange)="setAssignmentTeamId($event)"
-      (saveAssignment)="saveAssignment()"
-      (beginCommentEdit)="beginCommentEdit($event)"
-      (editingCommentTextChange)="setEditingCommentText($event)"
-      (newCommentTextChange)="setNewCommentText($event)"
-      (createComment)="createComment()"
-      (saveCommentEdit)="saveCommentEdit($event)"
-      (cancelCommentEdit)="cancelCommentEdit()"
-      (deleteComment)="deleteComment($event)" />
+      (close)="toggleCreateDrawer()"
+      (submit)="submitCreateTask()" />
   }
-
-  <app-create-drawer
-    [isOpen]="isCreateDrawerOpen"
-    [form]="createForm"
-    [users]="users"
-    [teams]="teams"
-    [statuses]="statuses"
-    [priorities]="priorities"
-    [isSaving]="isSaving"
-    [statusLabel]="statusLabel.bind(this)"
-    (close)="toggleCreateDrawer()"
-    (submit)="submitCreateTask()" />
 </main>

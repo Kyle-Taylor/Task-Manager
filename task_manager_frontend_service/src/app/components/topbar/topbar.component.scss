@@ -78,7 +78,8 @@
 }
 
 .alerts-shell,
-.settings-shell {
+.settings-shell,
+.user-shell {
   position: relative;
 }
 
@@ -229,6 +230,24 @@
   border-color: var(--action-fill-border);
 }
 
+.user-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.2rem 0.25rem 0.2rem 0.2rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--header-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.user-trigger:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
 .user-avatar {
   width: 34px;
   height: 34px;
@@ -242,6 +261,43 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.user-name {
+  color: var(--header-text);
+  font-size: 0.84rem;
+}
+
+.user-panel {
+  position: absolute;
+  top: calc(100% + 0.65rem);
+  right: 0;
+  min-width: 220px;
+  padding: 0.85rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: var(--panel-background-strong);
+  box-shadow: 0 20px 45px var(--shadow-strong);
+  color: var(--body-text);
+  z-index: 5;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.user-email {
+  color: var(--muted-text);
+  font-size: 0.82rem;
+}
+
+.sign-out-button {
+  margin-top: 0.35rem;
+  min-height: 34px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: var(--panel-background);
+  color: var(--body-text);
+  font: inherit;
+  cursor: pointer;
+}
+
 @media (max-width: 980px) {
   .global-bar {
     flex-direction: column;
@@ -251,5 +307,9 @@
   .global-nav,
   .global-actions {
     flex-wrap: wrap;
+  }
+
+  .user-name {
+    display: none;
   }
 }

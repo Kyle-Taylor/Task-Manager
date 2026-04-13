@@ -1,0 +1,108 @@
+.login-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: var(--page-overlay), var(--page-background);
+}
+
+.login-card {
+  width: min(460px, 100%);
+  display: grid;
+  gap: 1.1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 18px;
+  background: var(--panel-background-strong);
+  box-shadow: 0 24px 60px var(--shadow-strong);
+}
+
+.login-copy {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-text);
+}
+
+.login-copy h1 {
+  margin: 0;
+  color: var(--onyx);
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-size: 2rem;
+  line-height: 1.05;
+}
+
+.login-copy p:not(.eyebrow) {
+  margin: 0;
+  color: var(--muted-text);
+  line-height: 1.6;
+}
+
+.login-field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.login-field span {
+  font-size: 0.84rem;
+  color: var(--muted-text);
+}
+
+.login-field input,
+.login-field select {
+  min-height: 46px;
+  width: 100%;
+  padding: 0 0.9rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: var(--panel-background);
+  color: var(--body-text);
+  font: inherit;
+}
+
+.login-error {
+  padding: 0.8rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--chip-danger-text) 28%, var(--panel-border));
+  border-radius: 12px;
+  background: var(--chip-danger-bg);
+  color: var(--chip-danger-text);
+  font-size: 0.9rem;
+}
+
+.login-actions {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.sign-in-button {
+  min-height: 44px;
+  border: 1px solid var(--action-fill-border);
+  border-radius: 12px;
+  background: var(--action-fill);
+  color: var(--action-fill-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.toggle-mode-button {
+  min-height: 42px;
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  background: var(--panel-background);
+  color: var(--body-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.sign-in-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

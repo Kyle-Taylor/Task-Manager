@@ -1,0 +1,99 @@
+<section class="login-shell">
+  <div class="login-card">
+    <div class="login-copy">
+      <p class="eyebrow">Task Manager</p>
+      <h1>{{ isCreateMode ? 'Create account' : 'Sign in' }}</h1>
+      <p>
+        {{ isCreateMode
+          ? 'Create a new profile and matching login so you can test the full auth flow.'
+          : 'Use your account email and password to enter the queue, alerts, and task workflow.' }}
+      </p>
+    </div>
+
+    @if (isCreateMode) {
+      <label class="login-field">
+        <span>Username</span>
+        <input
+          type="text"
+          [ngModel]="createUserForm.username"
+          (ngModelChange)="createUsernameChange.emit($event)"
+          placeholder="first.last" />
+      </label>
+
+      <label class="login-field">
+        <span>Email</span>
+        <input
+          type="email"
+          [ngModel]="createUserForm.email"
+          (ngModelChange)="createEmailChange.emit($event)"
+          placeholder="you@example.com" />
+      </label>
+
+      <label class="login-field">
+        <span>Team</span>
+        <select [ngModel]="createUserForm.teamId" (ngModelChange)="createTeamIdChange.emit($event)">
+          <option [ngValue]="null">No team</option>
+          @for (team of teams; track team.id) {
+            <option [ngValue]="team.id">{{ team.name }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="login-field">
+        <span>Password</span>
+        <input
+          type="password"
+          [ngModel]="createUserForm.password"
+          (ngModelChange)="createPasswordChange.emit($event)"
+          placeholder="At least 8 characters" />
+      </label>
+
+      <label class="login-field">
+        <span>Confirm password</span>
+        <input
+          type="password"
+          [ngModel]="createUserForm.confirmPassword"
+          (ngModelChange)="createConfirmPasswordChange.emit($event)"
+          placeholder="Re-enter password" />
+      </label>
+
+      @if (createErrorMessage) {
+        <div class="login-error">{{ createErrorMessage }}</div>
+      }
+    } @else {
+      <label class="login-field">
+        <span>Email</span>
+        <input type="email" [ngModel]="email" (ngModelChange)="emailChange.emit($event)" placeholder="you@example.com" />
+      </label>
+
+      <label class="login-field">
+        <span>Password</span>
+        <input type="password" [ngModel]="password" (ngModelChange)="passwordChange.emit($event)" placeholder="Enter password" />
+      </label>
+
+      @if (errorMessage) {
+        <div class="login-error">{{ errorMessage }}</div>
+      }
+    }
+
+    <div class="login-actions">
+      @if (isCreateMode) {
+        <button
+          type="button"
+          class="sign-in-button"
+          [disabled]="!createUserForm.username.trim() || !createUserForm.email.trim() || !createUserForm.password || !createUserForm.confirmPassword || isLoading"
+          (click)="createAccount.emit()">
+          Create account
+        </button>
+      } @else {
+        <button type="button" class="sign-in-button" [disabled]="!email.trim() || !password || isLoading" (click)="signIn.emit()">
+          Sign in
+        </button>
+      }
+
+      <button type="button" class="toggle-mode-button" (click)="toggleCreateMode.emit()">
+        {{ isCreateMode ? 'Back to sign in' : 'Create a user' }}
+      </button>
+    </div>
+  </div>
+</section>

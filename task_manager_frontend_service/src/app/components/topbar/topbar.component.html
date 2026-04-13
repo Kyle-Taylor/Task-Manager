@@ -82,7 +82,21 @@
           </section>
         }
       </div>
-      <span class="user-avatar">U1</span>
+      <div class="user-shell">
+        <button type="button" class="user-trigger" (click)="toggleUserMenu()">
+          <span class="user-avatar">{{ userInitials() }}</span>
+          <span class="user-name">{{ currentUser?.username ?? 'User' }}</span>
+        </button>
+
+        @if (isUserMenuOpen) {
+          <section class="user-panel" aria-label="Current user">
+            <span class="settings-label">Signed in as</span>
+            <strong>{{ currentUser?.username }}</strong>
+            <span class="user-email">{{ currentUser?.email }}</span>
+            <button type="button" class="sign-out-button" (click)="signOut.emit()">Sign out</button>
+          </section>
+        }
+      </div>
     </div>
   </div>
 </header>

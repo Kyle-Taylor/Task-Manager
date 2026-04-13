@@ -7,17 +7,21 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.Claims;
 import java.util.Date;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JwtService {
 
-    // TODO: Store in github env not env file
-    private final String SECRET = System.getenv("TOKEN_SECRET");
+    private final String secret;
+
+    public JwtService(@Value("${TOKEN_SECRET}") String secret) {
+        this.secret = secret;
+    }
 
     // Generate a signing key from the secret
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     /*

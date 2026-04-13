@@ -39,6 +39,14 @@ export interface CreateTaskFormModel {
   dueDate: string;
 }
 
+export interface CreateUserFormModel {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  teamId: number | null;
+}
+
 export interface RequestModalContext {
   task: Task;
   selectedUser: User | null;

@@ -25,6 +25,12 @@ export interface User {
   updatedAt: string | null;
 }
 
+export interface UserRequestPayload {
+  teamId: number | null;
+  username: string;
+  email: string;
+}
+
 export interface Team {
   id: number;
   name: string;

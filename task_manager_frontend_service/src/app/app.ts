@@ -1,13 +1,16 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { catchError, forkJoin, of, timeout } from 'rxjs';
 
 import { CreateDrawerComponent } from './components/create-drawer/create-drawer.component';
+import { LoginScreenComponent } from './components/login-screen/login-screen.component';
 import { RequestModalComponent } from './components/request-modal/request-modal.component';
 import { RequestTableComponent } from './components/request-table/request-table.component';
 import { ReportsAnalyticsComponent } from './components/reports-analytics/reports-analytics.component';
 import { SummaryCardsComponent } from './components/summary-cards/summary-cards.component';
 import { TopbarComponent } from './components/topbar/topbar.component';
+import { AuthApiService } from './core/auth-api.service';
+import { LoginResponse } from './core/auth-api.types';
 import { BUSINESS_SERVICE_ORIGIN } from './core/api.config';
 import { BusinessApiService } from './core/business-api.service';
 import {
@@ -22,6 +25,7 @@ import {
 } from './core/business-api.types';
 import {
   CommentViewModel,
+  CreateUserFormModel,
   CreateTaskFormModel,
   QueueFilter,
   RequestModalContext,
@@ -34,6 +38,7 @@ import {
   standalone: true,
   imports: [
     CommonModule,
+    LoginScreenComponent,
     TopbarComponent,
     SummaryCardsComponent,
     RequestTableComponent,
@@ -46,11 +51,13 @@ import {
 })
 export class App implements OnInit {
   private readonly themeStorageKey = 'task-manager-theme';
+  private readonly userStorageKey = 'task-manager-user-id';
+  private readonly tokenStorageKey = 'task-manager-auth-token';
   private readonly api = inject(BusinessApiService);
+  private readonly authApi = inject(AuthApiService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly location = inject(Location);
   private readonly requestTimeoutMs = 8000;
-  // Temporary stand-in until auth/user context is wired in.
-  private readonly currentUserId = 1;
 
   protected readonly apiBaseUrl = BUSINESS_SERVICE_ORIGIN;
   protected readonly filters: QueueFilter[] = [
@@ -93,6 +100,12 @@ export class App implements OnInit {
   protected activeSortDirection: SortDirection = 'desc';
   protected currentPage = 1;
   protected pageSize = 10;
+  protected loginEmail = '';
+  protected loginPassword = '';
+  protected authErrorMessage = '';
+  protected currentUserId: number | null = null;
+  protected isCreateUserMode = false;
+  protected createUserErrorMessage = '';
 
   protected readonly createForm: CreateTaskFormModel = {
     title: '',
@@ -104,8 +117,17 @@ export class App implements OnInit {
     dueDate: ''
   };
 
+  protected readonly createUserForm: CreateUserFormModel = {
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    teamId: null
+  };
+
   ngOnInit(): void {
     this.initializeTheme();
+    this.applyInitialRoute();
     this.loadDashboard();
   }
 
@@ -148,6 +170,9 @@ export class App implements OnInit {
       case 'Open requests':
         return this.tasks.filter(task => task.status === 'OPEN' || task.status === 'IN_PROGRESS');
       case 'My queue':
+        if (this.currentUserId === null) {
+          return [];
+        }
         return this.tasks.filter(task => task.assignedUserId === this.currentUserId);
       case 'Unassigned':
         return this.tasks.filter(task => task.assignedUserId === null);
@@ -161,9 +186,21 @@ export class App implements OnInit {
   }
 
   protected get unreadTasks(): Task[] {
+    if (this.currentUserId === null) {
+      return [];
+    }
+
     return this.tasks
       .filter(task => task.assignedUserId === this.currentUserId && task.readStatus === 'UNREAD')
       .sort((left, right) => new Date(right.updatedAt ?? right.createdAt ?? 0).getTime() - new Date(left.updatedAt ?? left.createdAt ?? 0).getTime());
+  }
+
+  protected get currentUser(): User | null {
+    if (this.currentUserId === null) {
+      return null;
+    }
+
+    return this.users.find(user => user.id === this.currentUserId) ?? null;
   }
 
   protected get selectedTask(): Task | null {
@@ -281,6 +318,12 @@ export class App implements OnInit {
         this.teams = teams;
         this.isLoading = false;
         this.currentPage = Math.min(this.currentPage, this.totalPages);
+        this.restorePersistedUser();
+        if (this.currentUserId === null) {
+          this.location.go('/login');
+        } else {
+          this.syncBrowserPath();
+        }
 
         const fallbackTaskId = preferredTaskId ?? this.selectedTaskId ?? null;
         if (fallbackTaskId && this.tasks.some(task => task.id === fallbackTaskId)) {
@@ -355,6 +398,135 @@ export class App implements OnInit {
     if (label !== 'Requests') {
       this.closeTicketModal();
     }
+    this.syncBrowserPath();
+  }
+
+  protected setLoginEmail(email: string): void {
+    this.loginEmail = email;
+  }
+
+  protected setLoginPassword(password: string): void {
+    this.loginPassword = password;
+  }
+
+  protected toggleCreateUserMode(): void {
+    this.isCreateUserMode = !this.isCreateUserMode;
+    this.authErrorMessage = '';
+    this.createUserErrorMessage = '';
+  }
+
+  protected setCreateUsername(username: string): void {
+    this.createUserForm.username = username;
+  }
+
+  protected setCreateEmail(email: string): void {
+    this.createUserForm.email = email;
+  }
+
+  protected setCreatePassword(password: string): void {
+    this.createUserForm.password = password;
+  }
+
+  protected setCreateConfirmPassword(password: string): void {
+    this.createUserForm.confirmPassword = password;
+  }
+
+  protected setCreateTeamId(teamId: number | null): void {
+    this.createUserForm.teamId = teamId;
+  }
+
+  protected signIn(): void {
+    if (!this.loginEmail.trim() || !this.loginPassword) {
+      return;
+    }
+
+    this.isSaving = true;
+    this.authErrorMessage = '';
+
+    this.authApi.login({
+      email: this.loginEmail.trim(),
+      password: this.loginPassword
+    }).subscribe({
+      next: response => {
+        this.isSaving = false;
+        this.completeLogin(response);
+        this.cdr.detectChanges();
+      },
+      error: error => {
+        this.isSaving = false;
+        this.authErrorMessage = this.extractErrorMessage(error);
+      }
+    });
+  }
+
+  protected createAccount(): void {
+    if (!this.createUserForm.username.trim() || !this.createUserForm.email.trim() || !this.createUserForm.password) {
+      this.createUserErrorMessage = 'Username, email, and password are required.';
+      return;
+    }
+
+    if (this.createUserForm.password.length < 8) {
+      this.createUserErrorMessage = 'Password must be at least 8 characters.';
+      return;
+    }
+
+    if (this.createUserForm.password !== this.createUserForm.confirmPassword) {
+      this.createUserErrorMessage = 'Passwords do not match.';
+      return;
+    }
+
+    this.isSaving = true;
+    this.createUserErrorMessage = '';
+
+    this.api.createUser({
+      username: this.createUserForm.username.trim(),
+      email: this.createUserForm.email.trim(),
+      teamId: this.createUserForm.teamId
+    }).subscribe({
+      next: createdUser => {
+        this.authApi.register({
+          profileUserId: createdUser.id,
+          email: createdUser.email,
+          password: this.createUserForm.password,
+          role: 'USER'
+        }).subscribe({
+          next: () => {
+            this.users = [...this.users, createdUser];
+            this.loginEmail = createdUser.email;
+            this.loginPassword = this.createUserForm.password;
+            this.resetCreateUserForm();
+            this.isCreateUserMode = false;
+            this.authErrorMessage = '';
+            this.createUserErrorMessage = '';
+            this.signIn();
+            this.cdr.detectChanges();
+          },
+          error: error => {
+            this.isSaving = false;
+            this.createUserErrorMessage = this.extractErrorMessage(error);
+          }
+        });
+      },
+      error: error => {
+        this.isSaving = false;
+        this.createUserErrorMessage = this.extractErrorMessage(error);
+      }
+    });
+  }
+
+  protected signOut(): void {
+    this.currentUserId = null;
+    this.loginEmail = '';
+    this.loginPassword = '';
+    this.authErrorMessage = '';
+    this.createUserErrorMessage = '';
+    this.activeNavigation = 'Requests';
+    this.activeFilter = 'All requests';
+    this.closeTicketModal();
+    localStorage.removeItem(this.userStorageKey);
+    localStorage.removeItem(this.tokenStorageKey);
+    this.location.go('/login');
+    this.cdr.detectChanges();
   }
 
   protected setPageSize(pageSize: number): void {
@@ -550,6 +722,11 @@ export class App implements OnInit {
       return;
     }
 
+    if (this.currentUserId === null) {
+      this.errorMessage = 'Sign in before creating a comment.';
+      return;
+    }
+
     if (!this.newCommentText.trim()) {
       this.errorMessage = 'Comment text is required.';
       return;
@@ -727,6 +904,10 @@ export class App implements OnInit {
   }
 
   private markSelectedTaskAsRead(taskId: number): void {
+    if (this.currentUserId === null) {
+      return;
+    }
+
     this.api.markTaskAsRead(taskId, this.currentUserId).subscribe({
       next: updatedTask => {
         this.tasks = this.tasks.map(task => task.id === updatedTask.id ? updatedTask : task);
@@ -790,6 +971,37 @@ export class App implements OnInit {
     this.applyTheme(theme);
   }
 
+  private applyInitialRoute(): void {
+    const path = this.location.path().toLowerCase();
+    const navigationByPath: Record<string, string> = {
+      '/dashboard': 'Dashboard',
+      '/requests': 'Requests',
+      '/documents': 'Documents',
+      '/reports': 'Reports',
+      '/assets': 'Assets'
+    };
+
+    this.activeNavigation = navigationByPath[path] ?? 'Requests';
+  }
+
+  private restorePersistedUser(): void {
+    const storedUserId = localStorage.getItem(this.userStorageKey);
+    const parsedUserId = storedUserId ? Number(storedUserId) : null;
+
+    if (!parsedUserId) {
+      return;
+    }
+
+    const matchedUser = this.users.find(user => user.id === parsedUserId) ?? null;
+    if (!matchedUser) {
+      localStorage.removeItem(this.userStorageKey);
+      return;
+    }
+
+    this.currentUserId = matchedUser.id;
+    this.loginEmail = matchedUser.email;
+  }
+
   private applyTheme(theme: 'light' | 'dark'): void {
     document.body.dataset['theme'] = theme;
     document.documentElement.style.colorScheme = theme;
@@ -803,5 +1015,48 @@ export class App implements OnInit {
     this.createForm.status = 'OPEN';
     this.createForm.priority = 'MEDIUM';
     this.createForm.dueDate = '';
+  }
+
+  private completeLogin(response: LoginResponse): void {
+    const matchedUser = this.users.find(user => user.id === response.profileUserId) ?? null;
+
+    if (!matchedUser) {
+      this.authErrorMessage = 'Credentials were accepted, but no matching profile user was found.';
+      return;
+    }
+
+    this.currentUserId = matchedUser.id;
+    this.loginPassword = '';
+    this.authErrorMessage = '';
+    this.errorMessage = '';
+    this.activeNavigation = 'Requests';
+    localStorage.setItem(this.userStorageKey, String(matchedUser.id));
+    localStorage.setItem(this.tokenStorageKey, response.token);
+    this.location.go('/requests');
+    this.cdr.detectChanges();
+  }
+
+  private syncBrowserPath(): void {
+    if (!this.currentUser) {
+      return;
+    }
+
+    const pathByNavigation: Record<string, string> = {
+      Dashboard: '/dashboard',
+      Requests: '/requests',
+      Documents: '/documents',
+      Reports: '/reports',
+      Assets: '/assets'
+    };
+
+    this.location.go(pathByNavigation[this.activeNavigation] ?? '/requests');
+  }
+
+  private resetCreateUserForm(): void {
+    this.createUserForm.username = '';
+    this.createUserForm.email = '';
+    this.createUserForm.password = '';
+    this.createUserForm.confirmPassword = '';
+    this.createUserForm.teamId = null;
   }
 }

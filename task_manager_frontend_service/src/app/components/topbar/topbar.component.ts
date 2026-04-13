@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Task } from '../../core/business-api.types';
+import { Task, User } from '../../core/business-api.types';
 
 @Component({
   selector: 'app-topbar',
@@ -13,12 +13,15 @@ export class TopbarComponent {
   @Input({ required: true }) activeNavigation = 'Requests';
   @Input({ required: true }) unreadTasks: Task[] = [];
   @Input({ required: true }) theme: 'light' | 'dark' = 'light';
+  @Input({ required: true }) currentUser: User | null = null;
   @Output() navigate = new EventEmitter<string>();
   @Output() openAlertTask = new EventEmitter<number>();
   @Output() themeChange = new EventEmitter<'light' | 'dark'>();
+  @Output() signOut = new EventEmitter<void>();
 
   protected isAlertsOpen = false;
   protected isSettingsOpen = false;
+  protected isUserMenuOpen = false;
 
   protected readonly topNavItems = [
     'Dashboard',
@@ -32,6 +35,7 @@ export class TopbarComponent {
     this.isAlertsOpen = !this.isAlertsOpen;
     if (this.isAlertsOpen) {
       this.isSettingsOpen = false;
+      this.isUserMenuOpen = false;
     }
   }
 
@@ -39,6 +43,15 @@ export class TopbarComponent {
     this.isSettingsOpen = !this.isSettingsOpen;
     if (this.isSettingsOpen) {
       this.isAlertsOpen = false;
+      this.isUserMenuOpen = false;
+    }
+  }
+
+  protected toggleUserMenu(): void {
+    this.isUserMenuOpen = !this.isUserMenuOpen;
+    if (this.isUserMenuOpen) {
+      this.isAlertsOpen = false;
+      this.isSettingsOpen = false;
     }
   }
 
@@ -50,5 +63,10 @@ export class TopbarComponent {
   protected selectAlertTask(taskId: number): void {
     this.openAlertTask.emit(taskId);
     this.isAlertsOpen = false;
+  }
+
+  protected userInitials(): string {
+    const username = this.currentUser?.username ?? 'U';
+    return username.slice(0, 2).toUpperCase();
   }
 }

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
 import { API_BASE_URL } from './api.config';
-import { Task, TaskComment, TaskCommentRequestPayload, TaskRequestPayload, Team, User } from './business-api.types';
+import { Task, TaskComment, TaskCommentRequestPayload, TaskRequestPayload, Team, User, UserRequestPayload } from './business-api.types';
 import { SortDirection, TaskSortField } from '../shared/dashboard.types';
 
 @Injectable({ providedIn: 'root' })
@@ -20,6 +20,10 @@ export class BusinessApiService {
 
   getUsers() {
     return this.http.get<User[]>(`${API_BASE_URL}/profiles/users`);
+  }
+
+  createUser(payload: UserRequestPayload) {
+    return this.http.post<User>(`${API_BASE_URL}/profiles/users`, payload);
   }
 
   getTeams() {

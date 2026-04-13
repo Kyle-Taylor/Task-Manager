@@ -1,10 +1,14 @@
 package com.skillstorm.auth_service.DTOs;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record RegisterRequest (
+    @NotNull(message = "Profile user id is required")
+    Long profileUserId,
+
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format") String email,
 

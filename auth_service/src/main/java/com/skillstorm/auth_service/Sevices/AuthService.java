@@ -30,12 +30,8 @@ public class AuthService {
             500 Internal Server Error - Server error during registration
     */
     public void register(RegisterRequest request){
-        //TODO: Call whichever Service handles profile and create a user
-        // Long profileUserId = profileService.createProfile(request.name(), request.email());
-        Long profileUserId = 1L; // Placeholder until Profile Service is implemented
-
         UserCredentials user = new UserCredentials(
-            profileUserId,
+            request.profileUserId(),
             request.email(),
             passwordEncoder.encode(request.password()),
             request.role()
@@ -94,5 +90,4 @@ public class AuthService {
         );
     }
 }
-
 
