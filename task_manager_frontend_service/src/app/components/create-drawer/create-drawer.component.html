@@ -1,0 +1,71 @@
+@if (isOpen) {
+  <aside class="create-drawer">
+    <div class="drawer-header">
+      <div>
+        <p class="eyebrow">Create request</p>
+        <h3>New ticket</h3>
+      </div>
+      <button type="button" class="ghost-button slim-button" (click)="close.emit()">Close</button>
+    </div>
+
+    <div class="form-grid">
+      <label class="field field-full">
+        <span>Title</span>
+        <input [(ngModel)]="form.title" type="text" placeholder="Task title" />
+      </label>
+
+      <label class="field field-full">
+        <span>Description</span>
+        <textarea [(ngModel)]="form.description" rows="5" placeholder="Describe the request"></textarea>
+      </label>
+
+      <label class="field">
+        <span>Status</span>
+        <select [(ngModel)]="form.status">
+          @for (status of statuses; track status) {
+            <option [ngValue]="status">{{ statusLabel(status) }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Priority</span>
+        <select [(ngModel)]="form.priority">
+          @for (priority of priorities; track priority) {
+            <option [ngValue]="priority">{{ priority }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>User</span>
+        <select [(ngModel)]="form.assignedUserId">
+          <option [ngValue]="null">Unassigned</option>
+          @for (user of users; track user.id) {
+            <option [ngValue]="user.id">{{ user.username }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Team</span>
+        <select [(ngModel)]="form.assignedTeamId">
+          <option [ngValue]="null">No team</option>
+          @for (team of teams; track team.id) {
+            <option [ngValue]="team.id">{{ team.name }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field field-full">
+        <span>Due date</span>
+        <input [(ngModel)]="form.dueDate" type="datetime-local" />
+      </label>
+    </div>
+
+    <div class="drawer-actions">
+      <button type="button" class="ghost-button" [disabled]="isSaving" (click)="close.emit()">Cancel</button>
+      <button type="button" class="primary-button" [disabled]="isSaving" (click)="submit.emit()">Create request</button>
+    </div>
+  </aside>
+}

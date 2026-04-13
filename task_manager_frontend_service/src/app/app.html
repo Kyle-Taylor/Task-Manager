@@ -1,0 +1,89 @@
+<main class="workspace">
+  <section class="main-shell">
+    <app-topbar
+      [activeNavigation]="activeNavigation"
+      [unreadTasks]="unreadTasks"
+      [theme]="theme"
+      (openAlertTask)="openTaskFromAlert($event)"
+      (themeChange)="setTheme($event)"
+      (navigate)="setNavigation($event)" />
+
+    @if (errorMessage) {
+      <section class="error-banner">
+        <strong>Request failed.</strong>
+        <span>{{ errorMessage }}</span>
+      </section>
+    }
+
+    @if (activeNavigation === 'Reports') {
+      <app-summary-cards [cards]="summaryCards" />
+
+      <app-reports-analytics
+        [tasks]="tasks"
+        [teams]="teams"
+        [users]="users"
+        [teamLoad]="teamLoad"
+        [formatDueDate]="formatDueDate.bind(this)" />
+    } @else {
+      <section class="board">
+        <app-request-table
+          [filters]="filters"
+          [activeFilter]="activeFilter"
+          [isLoading]="isLoading"
+          [filteredTickets]="filteredTickets"
+          [selectedTaskId]="selectedTaskId"
+          [getUserName]="getUserName.bind(this)"
+          [getTeamName]="getTeamName.bind(this)"
+          [statusLabel]="statusLabel.bind(this)"
+          [statusClass]="statusClass.bind(this)"
+          [priorityClass]="priorityClass.bind(this)"
+          [formatDateTime]="formatDateTime.bind(this)"
+          [formatDueDate]="formatDueDate.bind(this)"
+          [activeSortField]="activeSortField"
+          [activeSortDirection]="activeSortDirection"
+          (filterChange)="setFilter($event)"
+          (ticketSelect)="selectTicket($event)"
+          (refresh)="refreshDashboard()"
+          (createRequest)="toggleCreateDrawer()"
+          (sortChange)="changeSort($event)" />
+      </section>
+    }
+  </section>
+
+  @if (activeNavigation === 'Requests') {
+    <app-request-modal
+      [context]="modalContext"
+      [statusLabel]="statusLabel.bind(this)"
+      [statusClass]="statusClass.bind(this)"
+      [formatDateTime]="formatDateTime.bind(this)"
+      [formatDueDate]="formatDueDate.bind(this)"
+      (close)="closeTicketModal()"
+      (updateStatus)="updateStatus($event)"
+      (detailTitleChange)="setDetailTitle($event)"
+      (detailDescriptionChange)="setDetailDescription($event)"
+      (detailPriorityChange)="setDetailPriority($event)"
+      (saveDetails)="saveDetails()"
+      (assignmentUserIdChange)="setAssignmentUserId($event)"
+      (assignmentTeamIdChange)="setAssignmentTeamId($event)"
+      (saveAssignment)="saveAssignment()"
+      (beginCommentEdit)="beginCommentEdit($event)"
+      (editingCommentTextChange)="setEditingCommentText($event)"
+      (newCommentTextChange)="setNewCommentText($event)"
+      (createComment)="createComment()"
+      (saveCommentEdit)="saveCommentEdit($event)"
+      (cancelCommentEdit)="cancelCommentEdit()"
+      (deleteComment)="deleteComment($event)" />
+  }
+
+  <app-create-drawer
+    [isOpen]="isCreateDrawerOpen"
+    [form]="createForm"
+    [users]="users"
+    [teams]="teams"
+    [statuses]="statuses"
+    [priorities]="priorities"
+    [isSaving]="isSaving"
+    [statusLabel]="statusLabel.bind(this)"
+    (close)="toggleCreateDrawer()"
+    (submit)="submitCreateTask()" />
+</main>

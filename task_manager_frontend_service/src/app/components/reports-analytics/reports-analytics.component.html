@@ -1,0 +1,196 @@
+<section class="reports-hero">
+  <div class="reports-hero-copy">
+    <p class="eyebrow">Operations snapshot</p>
+    <h2>Service desk reporting</h2>
+    <span>Track backlog pressure, unread workload, aging tickets, and delivery flow across the desk.</span>
+  </div>
+
+  <div class="reports-hero-strip">
+    <div class="hero-stat">
+      <strong>{{ unreadCount }}</strong>
+      <span>Unread tasks in circulation</span>
+    </div>
+    <div class="hero-stat">
+      <strong>{{ overdueTasks.length }}</strong>
+      <span>Currently overdue requests</span>
+    </div>
+    <div class="hero-stat">
+      <strong>{{ completedRate }}%</strong>
+      <span>Completion rate</span>
+    </div>
+  </div>
+</section>
+
+<section class="analytics-grid">
+  @for (card of analyticsCards; track card.label) {
+    <article class="analytics-card">
+      <p>{{ card.label }}</p>
+      <strong>{{ card.value }}</strong>
+      <span>{{ card.detail }}</span>
+    </article>
+  }
+</section>
+
+<section class="analytics-layout">
+  <article class="analytics-panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Team pressure</p>
+        <h3>Open workload by team</h3>
+      </div>
+    </div>
+
+    <div class="team-load-list">
+      @for (item of teamLoad; track item.team.id) {
+        <div class="team-load-row">
+          <div class="team-load-copy">
+            <strong>{{ item.team.name }}</strong>
+            <span>{{ item.openCount }} open - {{ item.breachedCount }} overdue</span>
+          </div>
+          <div class="team-load-bar">
+            <span [style.width.%]="item.width"></span>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <strong>No team analytics available.</strong>
+          <span>Add teams and tasks to populate workload trends.</span>
+        </div>
+      }
+    </div>
+  </article>
+
+  <article class="analytics-panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">At risk</p>
+        <h3>Overdue requests</h3>
+      </div>
+    </div>
+
+    @if (overdueTasks.length) {
+      <div class="overdue-list">
+        @for (task of overdueTasks; track task.id) {
+          <div class="overdue-row">
+            <div>
+              <strong>#{{ task.id }} {{ task.title }}</strong>
+              <span>{{ task.status ?? 'OPEN' }}</span>
+            </div>
+            <span class="due-chip">{{ formatDueDate(task.dueDate) }}</span>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <strong>No overdue requests.</strong>
+        <span>Current SLA targets are holding.</span>
+      </div>
+    }
+  </article>
+</section>
+
+<section class="analytics-layout analytics-layout-secondary">
+  <article class="analytics-panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Flow</p>
+        <h3>Status mix</h3>
+      </div>
+    </div>
+
+    <div class="metric-list">
+      @for (item of statusMix; track item.label) {
+        <div class="metric-row">
+          <div class="metric-copy">
+            <strong>{{ item.label }}</strong>
+            <span>{{ item.count }} tickets</span>
+          </div>
+          <div class="metric-bar">
+            <span [style.width.%]="item.width"></span>
+          </div>
+        </div>
+      }
+    </div>
+  </article>
+
+  <article class="analytics-panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Aging</p>
+        <h3>Open request age</h3>
+      </div>
+    </div>
+
+    <div class="metric-list">
+      @for (bucket of agingBuckets; track bucket.label) {
+        <div class="metric-row">
+          <div class="metric-copy">
+            <strong>{{ bucket.label }}</strong>
+            <span>{{ bucket.count }} open requests</span>
+          </div>
+          <div class="metric-bar">
+            <span [style.width.%]="bucket.width"></span>
+          </div>
+        </div>
+      }
+    </div>
+  </article>
+</section>
+
+<section class="analytics-layout analytics-layout-secondary">
+  <article class="analytics-panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Attention</p>
+        <h3>Unread by assignee</h3>
+      </div>
+    </div>
+
+    @if (assigneeHotspots.length) {
+      <div class="hotspot-list">
+        @for (item of assigneeHotspots; track item.id) {
+          <div class="hotspot-row">
+            <div>
+              <strong>{{ item.username }}</strong>
+              <span>{{ item.openCount }} open tasks</span>
+            </div>
+            <span class="metric-chip">{{ item.unreadCount }} unread</span>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <strong>No assignee hotspots.</strong>
+        <span>Assigned workload will appear here once tasks are routed to users.</span>
+      </div>
+    }
+  </article>
+
+  <article class="analytics-panel">
+    <div class="panel-header">
+      <div>
+        <p class="eyebrow">Attention</p>
+        <h3>Unread by team</h3>
+      </div>
+    </div>
+
+    @if (unreadTasksByTeam.length) {
+      <div class="hotspot-list">
+        @for (item of unreadTasksByTeam; track item.id) {
+          <div class="hotspot-row">
+            <div>
+              <strong>{{ item.name }}</strong>
+              <span>Unread work waiting for review</span>
+            </div>
+            <span class="metric-chip">{{ item.unreadCount }} unread</span>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <strong>No unread team backlog.</strong>
+        <span>All team queues are currently acknowledged.</span>
+      </div>
+    }
+  </article>
+</section>

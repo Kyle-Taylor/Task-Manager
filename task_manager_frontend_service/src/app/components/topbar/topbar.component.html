@@ -1,0 +1,88 @@
+<header class="topbar-shell">
+  <div class="global-bar">
+    <div class="global-brand">
+      <div class="brand-copy">
+        <strong>Task Manager</strong>
+        <span>Business Service Desk</span>
+      </div>
+    </div>
+
+    <nav class="global-nav" aria-label="Header modules">
+      @for (item of topNavItems; track item) {
+        <button
+          type="button"
+          class="global-nav-item"
+          [class.is-active]="item === activeNavigation"
+          (click)="navigate.emit(item)">
+          {{ item }}
+        </button>
+      }
+    </nav>
+
+    <div class="global-actions">
+      <button type="button" class="utility-link">Search</button>
+      <div class="alerts-shell">
+        <button type="button" class="utility-link alerts-trigger" (click)="toggleAlerts()">
+          Alerts
+          @if (unreadTasks.length) {
+            <span class="alerts-count">{{ unreadTasks.length }}</span>
+          }
+        </button>
+
+        @if (isAlertsOpen) {
+          <section class="alerts-panel" aria-label="Unread task alerts">
+            <div class="alerts-header">
+              <span class="settings-label">Unread tasks</span>
+              <strong>{{ unreadTasks.length }}</strong>
+            </div>
+
+            @if (!unreadTasks.length) {
+              <div class="alerts-empty">
+                <strong>All caught up.</strong>
+                <span>No unread tasks are assigned to you.</span>
+              </div>
+            } @else {
+              <div class="alerts-list">
+                @for (task of unreadTasks; track task.id) {
+                  <button type="button" class="alert-item" (click)="selectAlertTask(task.id)">
+                    <div class="alert-item-row">
+                      <span class="alert-marker" aria-hidden="true">!</span>
+                      <strong>#{{ task.id }} {{ task.title }}</strong>
+                    </div>
+                    <span>{{ task.priority ?? 'LOW' }} priority</span>
+                  </button>
+                }
+              </div>
+            }
+          </section>
+        }
+      </div>
+      <div class="settings-shell">
+        <button type="button" class="utility-link" (click)="toggleSettings()">Settings</button>
+
+        @if (isSettingsOpen) {
+          <section class="settings-panel" aria-label="Theme settings">
+            <span class="settings-label">Appearance</span>
+            <div class="theme-toggle" role="group" aria-label="Choose theme">
+              <button
+                type="button"
+                class="theme-option"
+                [class.is-active]="theme === 'light'"
+                (click)="selectTheme('light')">
+                Light
+              </button>
+              <button
+                type="button"
+                class="theme-option"
+                [class.is-active]="theme === 'dark'"
+                (click)="selectTheme('dark')">
+                Dark
+              </button>
+            </div>
+          </section>
+        }
+      </div>
+      <span class="user-avatar">U1</span>
+    </div>
+  </div>
+</header>
