@@ -1,5 +1,12 @@
 <main class="workspace">
-  @if (!currentUser) {
+  @if (!isSessionReady) {
+    <section class="boot-shell">
+      <div class="boot-card">
+        <p class="boot-label">Task Manager</p>
+        <strong>Loading workspace...</strong>
+      </div>
+    </section>
+  } @else if (!currentUser) {
     <app-login-screen
       [teams]="teams"
       [isLoading]="isLoading || isSaving"

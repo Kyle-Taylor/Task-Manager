@@ -78,6 +78,7 @@ export class App implements OnInit {
   protected comments: TaskComment[] = [];
 
   protected isLoading = true;
+  protected isSessionReady = false;
   protected isTaskListRefreshing = false;
   protected isSaving = false;
   protected isRefreshingComments = false;
@@ -317,6 +318,7 @@ export class App implements OnInit {
         this.users = users;
         this.teams = teams;
         this.isLoading = false;
+        this.isSessionReady = true;
         this.currentPage = Math.min(this.currentPage, this.totalPages);
         this.restorePersistedUser();
         if (this.currentUserId === null) {
@@ -335,6 +337,7 @@ export class App implements OnInit {
       },
       error: error => {
         this.isLoading = false;
+        this.isSessionReady = true;
         this.errorMessage = this.extractErrorMessage(error);
         this.cdr.detectChanges();
       }

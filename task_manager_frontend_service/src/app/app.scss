@@ -9,6 +9,35 @@
   position: relative;
 }
 
+.boot-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: var(--page-overlay), var(--page-background);
+}
+
+.boot-card {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 260px;
+  padding: 1.25rem 1.4rem;
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  background: var(--panel-background-strong);
+  box-shadow: 0 18px 44px var(--shadow-strong);
+  color: var(--body-text);
+}
+
+.boot-label {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted-text);
+}
+
 .main-shell {
   padding: 0.9rem;
   background: var(--page-overlay), var(--page-background);
