@@ -1,4 +1,4 @@
-package com.skillstorm.auth_service.Sevices;
+package com.skillstorm.auth_service.Services;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;

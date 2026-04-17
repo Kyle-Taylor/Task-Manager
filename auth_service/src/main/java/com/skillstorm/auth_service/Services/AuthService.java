@@ -1,4 +1,4 @@
-package com.skillstorm.auth_service.Sevices;
+package com.skillstorm.auth_service.Services;
 
 import org.springframework.stereotype.Service;
 
@@ -9,7 +9,8 @@ import com.skillstorm.auth_service.Repositories.UserCredentialsRepository;
 import com.skillstorm.auth_service.DTOs.LoginRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.skillstorm.auth_service.DTOs.TokenValidationResponse;
-
+import com.skillstorm.auth_service.Exceptions.UserNotFoundException;
+import com.skillstorm.auth_service.Exceptions.InvalidCredentialsException;
 @Service
 public class AuthService {
     private final UserCredentialsRepository userCredentialsRepository;
@@ -53,10 +54,11 @@ public class AuthService {
     */
     public LoginResponse login(LoginRequest request){
         UserCredentials user = userCredentialsRepository.findByEmail(request.email())
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
+            .orElseThrow(() -> new UserNotFoundException(request.email()));
+        System.out.println(user.getPasswordHash() == request.password());
+        System.out.println("User found: " + user.getEmail() + " " + user.getPasswordHash());
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-            throw new RuntimeException("Invalid password");
+            throw new InvalidCredentialsException();
         }
         String token = jwtService.generateToken(
             user.getEmail(),

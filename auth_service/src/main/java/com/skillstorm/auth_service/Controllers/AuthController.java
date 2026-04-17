@@ -10,8 +10,9 @@ import com.skillstorm.auth_service.DTOs.LoginRequest;
 import com.skillstorm.auth_service.DTOs.LoginResponse;
 import com.skillstorm.auth_service.DTOs.RegisterRequest;
 import com.skillstorm.auth_service.DTOs.TokenValidationResponse;
+import com.skillstorm.auth_service.Services.AuthService;
 import com.skillstorm.auth_service.DTOs.TokenValidationRequest;
-import com.skillstorm.auth_service.Sevices.AuthService;
+
 import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController

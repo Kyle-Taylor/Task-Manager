@@ -1,4 +1,4 @@
-package Client;
+package com.skillstorm.auth_service.Client;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
